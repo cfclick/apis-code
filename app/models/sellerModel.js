@@ -3,44 +3,44 @@ const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+")
 
 var Schema = mongoose.Schema;
 var findOrCreate = require('mongoose-findorcreate')
-var MD5      = require('md5');
+var MD5 = require('md5');
 // create a seller schema 
 var sellerSchema = new Schema({
-    name:{ 
-        type: String, 
+    name: {
+        type: String,
         trim: true
     },
-    email: { 
-        type: String, 
-        required: true, 
-        unique: true, 
+    email: {
+        type: String,
+        required: true,
+        unique: true,
         match: [emailRegex, "Please enter a valid email address"],
         trim: true
     },
-    
-    username: { 
-        type: String, 
-        required: true, 
+
+    username: {
+        type: String,
+        required: true,
         unique: true,
         trim: true
     },
-    password: { 
-        type: String, 
-        required: true, 
+    password: {
+        type: String,
+        required: true,
         trim: true
     },
-    social_login: { 
-        type: String,        
+    social_login: {
+        type: String,
         trim: true
     },
-    phone:{ 
-        type: String, 
-        required: true, 
+    phone: {
+        type: String,
+        required: true,
         trim: true
-    },  
+    },
     created_at: Date,
-    updated_at: Date,    
-});  
+    updated_at: Date,
+});
 
 //attaching the behaviour to document's attributes before saving in collection named 'sellers' 
 /*sellerSchema.pre('findOneAndUpdate', function(next) { 
@@ -56,12 +56,12 @@ var sellerSchema = new Schema({
 });*/
 
 
-sellerSchema.pre('findOneAndUpdate', function(next) {
+sellerSchema.pre('findOneAndUpdate', function (next) {
     var update = this.getUpdate();
     update.updated_at = new Date();
     update.$setOnInsert.created_at = new Date();
     next();
-  });
+});
 //attaching the plugins to schema
 sellerSchema.plugin(findOrCreate)
 
