@@ -74,6 +74,16 @@ function validateSeller(seller) {
     return Joi.validate(seller, schema);
 }
 
+function validateLogin(seller) {
+    const schema = {
+        username: Joi.string().min(6).max(50).required(),
+        password: Joi.string().min(8).max(50).required()
+    }
+
+    return Joi.validate(seller, schema);
+}
+
 
 module.exports.Seller = Seller;
 module.exports.validate = validateSeller;
+module.exports.validateLogin = validateLogin;

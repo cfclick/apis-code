@@ -4,13 +4,28 @@ const _ = require('lodash'); //js utility lib
 const validateNow = require('../interceptors/validate');
 const {
     Seller,
-    validate
+    validate,
+    validateLogin
 } = require('../models/seller');
+
 const express = require('express');
 const router = express.Router();
 
+router.post('/seller/login', validateNow(validateLogin), async (req, res) => {
 
-router.post('/sellerSignup', [validateNow(validate)], async (req, res) => {
+    let seller = await Seller.findOne({
+        username: req.body.username
+    });
+    if (!seller) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('Invalid username or password.');
+
+    const validPassword = await bcrypt.compare(req.body.password, seller.password);
+    if (!validPassword) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('Invalid username or password.');
+
+    // const token = seller.generateAuthToken();
+    res.send(_.pick(seller, ['_id', 'name', 'email', 'phone']));
+});
+
+router.post('/seller/Signup', [validateNow(validate)], async (req, res) => {
 
     let seller = await Seller.findOne({
         email: req.body.email
@@ -30,7 +45,7 @@ router.post('/sellerSignup', [validateNow(validate)], async (req, res) => {
     seller.password = await bcrypt.hash(seller.password, salt);
 
     await seller.save();
-    res.send(seller);
+    res.send(_.pick(seller, ['_id', 'name', 'email', 'phone']));
 });
 
 module.exports = router;
