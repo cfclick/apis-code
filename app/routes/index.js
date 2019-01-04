@@ -23,6 +23,6 @@ module.exports = function(app,options) {
         next();
     });
     
-    app.use('/apis/auth', require('./authRoute'));    
-    //app.use(helpers.errorHandler);
+    app.use('/api/auth', require('./authRoute'));    
+    app.use(helpers.errorHandler);
 }

@@ -3,7 +3,9 @@ var router = express.Router();
 const jwt = require('jsonwebtoken');
 var MD5      = require('md5');
 const Appconfig = require('../../config/config')
+const mailHelper = require('../../helpers/send_mail')
 var repository     = require('../repository');
+
 
 /* ====================== Login  =======================================*/
 router.post('/login',function(req,res,next){
@@ -40,82 +42,76 @@ router.post('/login',function(req,res,next){
 	
 })
 
-/* ====================== social Login  =======================================*/
-router.post('/socialLogin',function(req,res,next){
+/* ====================== saving seller account info  =======================================*/
+router.post('/sellerSignup',function(req,res,next){
+	//if any listed below attribute is empty
+	if(!req.body.email || !req.body.password){
+		res.json({'status':201,'error':'All Fields are Requierd'});
+	}
 
-	/*
-	social login types(3)
-		Facebook :facebook
-		Google   :google
-		Microsoft:microsoft
-	*/
-	//if email or password is empty
-	if(!req.body.email || !req.body.model || !req.body.social_login){
-		res.json({'status':201,'error':'All Fields are Requierd'});
-	}
-    
-	//checking the existing user and update. If not exist then save user information
-	repository.authRepo.insertOrUpdateUser(req.body)
-        .then(doc => {			
-			data  = doc.toJSON();
-			const token = jwt.sign({ sub: data._id }, Appconfig.AppConfig.jwt_Secret);									
-			res.json({'status':200,'data':data, 'jwtAuthToken':token });	
-		})
-	
-})
-/* ====================== forgot password  =======================================*/
-router.post('/forgot',function(){
-	//if email is empty
-	if(!req.body.email){
-		res.json({'status':201,'error':'All Fields are Requierd'});
-	}
 
 	//fetching the user data and checking existing user
-	repository.authRepo.fetchUserByEmail(req.body.email)
+	repository.authRepo.fetchUserByEmail(req.body.model,req.body.email)
         .then(doc => {			
 			switch (true){
 				//case: no user found
-				case (doc==null || doc.length<=0):
-					res.json({'status':400,'error':'Email do not Match'});		
-					break;				
+				case (doc==null || ! '_id' in doc):
+				
+					//save seller if do not exist
+					repository.authRepo.saveSellerInfo(req.body)
+						.then(record => {			
+							data  = record.toJSON();
+							const token = jwt.sign({ sub: data._id }, Appconfig.AppConfig.jwt_Secret);									
+							res.json({'status':200,'data':data, 'jwtAuthToken':token });
+									
+					})
+					break; 
+								
 				//case: user found and match password (valid user)
-				case (doc.length>0):
-					data  = doc.toJSON();									
-					res.json({'status':200,'data':data });
-					//put send mail code here			
+				case ('_id' in doc):												
+					res.json({'status':400,'error':'Email already exist' });							
 					break; 				
 				default:
 					res.json({'status':401,'error':'Wrong email'});			
 					break; 
 			}	
 		})
+
 })
 
-/* ====================== saving seller account info  =======================================*/
-router.post('/sellerSignup',function(){
-	//if any listed below attribute is empty
-	if(!req.body.email || !req.body.phone || !req.body.password){
+
+/* ====================== Seller/Dealer Email Exist  =======================================*/
+router.post('/emailExist',function(req,res,next){
+
+	//if email or password is empty
+	if(!req.body.email || !req.body.model){
 		res.json({'status':201,'error':'All Fields are Requierd'});
 	}
-
-	//fetching the user data and checking existing user
-	repository.authRepo.saveSellerInfo(req.body)
-        .then(doc => {			
+    
+	//fetching the user data and checking auth for valid user
+	repository.authRepo.fetchUserByEmail(req.body.model,req.body.email)
+        .then(doc => {	
+			
 			switch (true){
-				//case: no document return when data not saved
-				case (doc==null || doc.length<=0):
-					res.json({'status':400,'error':'could not save data'});		
-					break;				
-				//case: user docuemnt after successfully saved
-				case (doc.length>0):
-					data  = doc.toJSON();									
-					res.json({'status':200,'data':data });
-					//put send mail code here			
-					break; 				
+				
+
+				//case: no user found
+				case (doc==null || ! '_id' in doc):
+					res.json({'status':400, emailExist: false});		
+					break;
+
+				//case: no user found
+				case ('_id' in doc):
+					res.json({'status':200, emailExist: true});		
+					break;
+							
 				default:
-					res.json({'status':401,'error':'could not save'});			
+					res.json({'status':401, emailExist: false});				
 					break; 
 			}	
 		})
+	
 })
+
+
 module.exports = router;

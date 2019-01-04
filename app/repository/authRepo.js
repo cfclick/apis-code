@@ -1,13 +1,11 @@
 //importing models
 
-var Dealer     = require('../models/dealerModel');
 var Seller     = require('../models/sellerModel');
 
 module.exports = {
     fetchUserByEmail,
     fetchUserById,
     saveSellerInfo,
-    saveDealerInfo,
     insertOrUpdateUser
 };
 
@@ -36,10 +34,15 @@ Params: seller info object with name, email, phone, password etc.
 Return: Promise
 =======================================*/
 async function saveSellerInfo(sellerInfo){
+    delete sellerInfo.model
+    delete sellerInfo.repassword
+    
     var sellerObject = Seller(sellerInfo)
+  
     return await new Promise(function(resolve, reject) {
         sellerObject.save(function(err, doc){
             if (err) {
+                console.log(err)
 				reject(new Error('Ooops, something broke!'));
 			} else {
 				resolve(doc);
@@ -49,24 +52,7 @@ async function saveSellerInfo(sellerInfo){
      
 }
 
-/* ====================== 
-Function: save dealer information
-Params: dealer info object with name, email, phone, password etc.
-Return: Promise
-=======================================*/
-async function saveDealerInfo(dealerInfo){
-    var dealerObject = Dealer(dealerInfo)
-    return await new Promise(function(resolve, reject) {
-        dealerObject.save(function(err, doc){
-            if (err) {
-				reject(new Error('Ooops, something broke!'));
-			} else {
-				resolve(doc);
-			}
-        });	
-    });
-     
-}
+
 
 /* ====================== 
 Function: Fetch seller, dealer by id

@@ -1,26 +1,36 @@
 // grab the things we need
-const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 var Schema = mongoose.Schema;
 var findOrCreate = require('mongoose-findorcreate')
 var MD5      = require('md5');
 // create a seller schema 
 var sellerSchema = new Schema({
-    name:{ 
-        type: String, 
-        trim: true
-    },
+    name: {
+        prefix: { 
+            type: String, 
+            trim: true,
+            default: 'Mr.', 
+        },
+        first_name: { 
+            type: String, 
+            trim: true,
+            default: '',          
+        },
+        last_name: { 
+            type: String, 
+            trim: true,
+            default: '',           
+        },
+    },   
     email: { 
         type: String, 
         required: true, 
         unique: true, 
-        match: [emailRegex, "Please enter a valid email address"],
         trim: true
     },
     
     username: { 
-        type: String, 
-        required: true, 
+        type: String,        
         unique: true,
         trim: true
     },
@@ -30,38 +40,44 @@ var sellerSchema = new Schema({
         trim: true
     },
     social_login: { 
-        type: String,        
+        type: String, 
+        default: 'Web',      
         trim: true
     },
     phone:{ 
         type: String, 
-        required: true, 
+        required: true,       
         trim: true
+    }, 
+    active: { 
+        type: Boolean, 
+        default: true
+    },   
+    created_at: { 
+        type: Date         
     },  
-    created_at: Date,
-    updated_at: Date,    
+    updated_at: { 
+        type: Date,       
+        default: new Date(),    
+    }   
 });  
 
-//attaching the behaviour to document's attributes before saving in collection named 'sellers' 
-/*sellerSchema.pre('findOneAndUpdate', function(next) { 
-    var update = this.getUpdate();
-    update.$set.created_at = new Date();
-    update.$set.created_at = new Date();
-    this.password = (this.password)?MD5(this.password):''
-    this.created_at = new Date();
+
+sellerSchema.pre('save', function(next) {
+    var user = this;   
+
+    user.created_at = new Date();    
+    var userEmailArr = (this.email).split('@');
+    user.password = MD5(this.password);
+    user.username = userEmailArr[0]
     if (!this.created_at){
-      this.created_at = new Date();
-    }
+        user.created_at = new Date();
+    } 
+     
     next();
-});*/
+});
 
 
-sellerSchema.pre('findOneAndUpdate', function(next) {
-    var update = this.getUpdate();
-    update.updated_at = new Date();
-    update.$setOnInsert.created_at = new Date();
-    next();
-  });
 //attaching the plugins to schema
 sellerSchema.plugin(findOrCreate)
 

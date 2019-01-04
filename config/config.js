@@ -1,8 +1,6 @@
 require('dotenv').config();
 const dbSettings = {
-    db:process.env.DB || 'test',
-    user:process.env.DB_USER || 'test',
-    pass:'admin123',
+    db:process.env.DB || 'topautobid',    
     dbParameters: () => ({
         useNewUrlParser: true,
         useCreateIndex:true

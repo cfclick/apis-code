@@ -1,9 +1,7 @@
 global.mongoose = require('mongoose')
 
 const getMongooseURL = (options) => {  
-    console.log(options)
-    const url = 'mongodb://'+options.user+':'+options.pass+'@ds127944.mlab.com:27944/'+options.db
-    console.log(url)
+    const url = 'mongodb://localhost/'+options.db 
     return url;
 }
 const connect =(options, mediator)=>{
