@@ -1,0 +1,12 @@
+{
+    "name": "TopAutoBid API - local",
+    "port": "3000",
+    "debug": "true",
+    "db": {
+        "islocal": "true",
+        "url": "mongodb://localhost/",
+        "name": "TopAutoBid",
+        "user": "",
+        "pass": ""
+    }
+}

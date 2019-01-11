@@ -1,26 +1,19 @@
 'use strict'
-const {EventEmitter} = require('events')
-const config = require('./config/')
-const server = require('./serverConnect')
-const mediator = new EventEmitter()
 require('dotenv').config();
 
-process.on('uncaughtException', (err) => {
-    console.error('Unhandled Exception', err)
-})
-  
-process.on('uncaughtRejection', (err, promise) => {
-    console.error('Unhandled Rejection', err)
-})
-mediator.on('db.ready',(db)=>{
-    return server.start({
-        port: config.serverSettings.port        
-    })
-})
-mediator.on('db.error', (err) => {
-    console.error(err)
-})
-config.db.connect(config.dbSettings, mediator)
+const config = require('config')
+const winston = require('winston');
+const express = require('express');
+const app = express();
 
-mediator.emit('boot.ready')
-  
+require('./init/errorhandling')(); //logging library
+require('./init/controllers')(app);
+require('./init/db')();
+//require('./init/config')();
+require('./init/validation')();
+
+const port = config.get('port') || 3001;
+console.log(app.get('env'))
+const server = app.listen(port, () => winston.info(`API Started, listening on port ${port}...`));
+
+module.exports = server;
