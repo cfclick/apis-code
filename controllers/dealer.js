@@ -3,16 +3,16 @@ const bcrypt = require('bcrypt'); // for password encryption
 const _ = require('lodash'); //js utility lib
 const validateNow = require('../interceptors/validate');
 const {
-    Seller,
+    Dealer,
     validate,
     validateLogin
-} = require('../models/seller');
+} = require('../models/dealer');
 
 const express = require('express');
 const controller = express.Router();
 
 /**
- * Seller Controller
+ * Dealer Controller
  */
 
 module.exports = controller;

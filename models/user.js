@@ -96,19 +96,20 @@ userSchema.methods.validatePassword = function () {
 
 //const User = mongoose.model('users', userSchema);
 
-function validateUser(user) {
-    const schema = {
-        id: Joi.objectId(),
-        firstName: Joi.string().min(2).max(50).required(),
-        lastName: Joi.string().min(2).max(50).required(),
-        username: Joi.string().min(6).max(50).required(),
-        email: Joi.string().email().required(),
-        password: Joi.string().min(8).max(50).required()
-    }
+const userJoiSchema = {
+    id: Joi.objectId(),
+    firstName: Joi.string().min(2).max(50).required(),
+    lastName: Joi.string().min(2).max(50).required(),
+    username: Joi.string().min(6).max(50).required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(8).max(50).required()
+}
 
-    return Joi.validate(user, schema);
+function validateUser(user) {
+    return Joi.validate(user, userJoiSchema);
 }
 
 
 module.exports.userSchema = userSchema;
+module.exports.userJoiSchema = userJoiSchema;
 module.exports.validateUser = validateUser;
