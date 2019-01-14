@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-const helpers = require('../../helpers');
+const auth = require('../routes/auth');
+const error = require('../interceptors/error');
 
 module.exports = function(app,options) {     
     app.use(function (req, res, next) {
@@ -22,7 +23,10 @@ module.exports = function(app,options) {
         // Pass to next layer of middleware
         next();
     });
+    app.use(express.json());
+    app.use('/api/auth', auth);
+      
+    //Error Handler interceptor
+    app.use(error);  
     
-    app.use('/api/auth', require('./authRoute'));    
-    app.use(helpers.errorHandler);
 }
