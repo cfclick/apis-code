@@ -1,0 +1,23 @@
+{
+    "name": "TopAutoBid API - development",
+    "debug": "true",
+    "port": "3000",
+    "webEndPoint": "http://54.245.128.14:4200",
+    "fromEmail":"sandeep.kumar@trigma.in",
+    "aws":{
+        "accessKey":"AKIAJFK6YJMR4P23VEDA",
+        "secretKey":"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",
+        "bucket": "topautobid-dev",
+        "region": "us-west-2"
+    },
+    "db": {
+        "islocal": "false",
+        "url": {
+            "localUrl": "mongodb://localhost/",
+            "mlabUrl": "mongodb://"
+        },
+        "name": "topautobid",
+        "user": "",
+        "pass": ""
+    }
+}

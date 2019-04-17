@@ -1,42 +1,19 @@
 'use strict'
-const {EventEmitter} = require('events')
+require('dotenv').config();
 
 const config = require('config')
-const server = require('./serverConnect')
-const dbConnection = require('./config/mongoose')
-const mediator = new EventEmitter()
+const winston = require('winston');
+const express = require('express');
+const app = express();
 
+require('./init/errorhandling')(); //logging library
+require('./init/controllers')(app);
+require('./init/db')();
+//require('./init/config')();
+require('./init/validation')();
 
-if(!config.get('jwtPrivateKey')){
-    console.log('FATAl ERROR: jwtPrivateKey is not defined')
-}
+const port = config.get('port') || 3001;
+console.log(app.get('env'))
+const server = app.listen(port, () => winston.info(`API Started, listening on port ${port}...`));
 
-
-process.on('uncaughtException', (err) => {
-    console.error('Unhandled Exception', err)
-})
-  
-process.on('uncaughtRejection', (err, promise) => {
-    console.error('Unhandled Rejection', err)
-})
-process.on('unhandledRejection', function(reason, p) {
-    console.log("Unhandled Rejection:", reason.stack);
-    process.exit(1);
-});
-
-mediator.on('db.ready',(db)=>{
-    console.log('Connected to MongoDb...');
-
-    return server.start({
-        port: config.get('ApiPort')       
-    })
-
-})
-mediator.on('db.error', (err) => {
-    console.log('Could not connect to MongoDb...');
-})
-
-dbConnection.connect(config.get('MongoDb'), mediator)
-
-mediator.emit('boot.ready')
-  
+module.exports = server;
