@@ -108,21 +108,24 @@ controller.post('/listingCars',[validate(validateCarListing)], async(req,res,nex
     sortCondition[req.body.sortProperty] = req.body.sortDirection=='asc'?1:-1 //1 for ascending -1 for descending order sort
     
     
+    // calculating the car's count after search/filters
+    let totalRecordsAfterFilter = await Car.find(condition).countDocuments()  
+
     // calculating the car's count
-    let totalRecords = await Car.find(condition).countDocuments()  
+    let totalRecords = await Car.find().countDocuments()  
 
-
+   
     //calculating the limit and skip attributes to paginate records
-    let totalPages = totalRecords / req.body.size;
-    let start = req.body.pageNumber * req.body.size;
-
+    let totalPages = totalRecordsAfterFilter / req.body.size;
+    let start = (req.body.pageNumber<=1)? 0 : (req.body.pageNumber-1) * req.body.size;
+    console.log('start',start);
     console.log('condition',condition);
     let records = await Car.find(condition).   
         sort(sortCondition).
         skip(start).
-        limit(req.body.size)
-   
-    return res.status(def.API_STATUS.SUCCESS.OK).send({ records:records, count:totalRecords });	
+        limit(req.body.size)   
+
+    return res.status(def.API_STATUS.SUCCESS.OK).send({ records:records, count:totalRecordsAfterFilter, filteredRecords:totalRecords });	
 })
 
 /* ====================== Dealer car list  =======================================*/
@@ -166,16 +169,33 @@ controller.post('/listingDealersCars',[validate(validateDealerCarListing)], asyn
 function filters(req, condition){
 
     //if filters contains the 'bid price' filter
-    if(_.has(req.body.filters,['bid']))
-        condition['bids.price'] = { $gte: (req.body.filters.bid[0]).replace('$','').trim(), $lt: (req.body.filters.bid[1]).replace('$','').trim() }
+    if(_.has(req.body.filters,['price_range']))
+        condition['bids.price'] = { $gte: (req.body.filters.price_range[0]), $lte: (req.body.filters.price_range[1]) }
     
     //if filters contains the 'dates' filter
     if(_.has(req.body.filters,['dates']))
-        condition['created_at'] = { $gte: (req.body.filters.dates['start']),$lt: (req.body.filters.dates['end']) }
+        condition['created_at'] = { $gte: (req.body.filters.dates['transformedStartDate']),$lte: (req.body.filters.dates['transformedEndDate']) }
     
     //if filters contains the 'years' filter
-    if(_.has(req.body.filters,['years']))
-        condition['year'] = { $gte: req.body.filters.years[0],$lt: req.body.filters.years[1] }
+    if(_.has(req.body.filters,['year_range']))
+        condition['year'] = { $gte: req.body.filters.year_range[0],$lte: req.body.filters.year_range[1] }
+    
+    //if filters contains the 'year' filter
+    if(_.has(req.body.filters,['year']))
+        condition['year'] = { $in : req.body.filters['year'] }  
+
+    //if filters contains the 'make' filter
+    if(_.has(req.body.filters,['make']))
+        condition['make'] = req.body.filters['make']
+
+    //if filters contains the 'model' filter
+    if(_.has(req.body.filters,['model']))
+        condition['model'] = req.body.filters['model']
+
+
+    //if filters contains the 'trim' filter
+    if(_.has(req.body.filters,['trim']))
+        condition['trim'] = req.body.filters['trim']
     
     
     return condition  
@@ -188,8 +208,11 @@ function search(req){
             { make: { $regex: req.body.search,$options: 'i' } },
             { model: { $regex: req.body.search,$options: 'i' } },
             { trim: { $regex: req.body.search,$options: 'i' } },
-            //{"bids.price": '/'+req.body.search+'/'},
-            //{"year": '/'+req.body.search+'/' }
+            { body_style: { $regex: req.body.search,$options: 'i' } },
+            { type: { $regex: req.body.search,$options: 'i' } },
+            { body_style: { $regex: req.body.search,$options: 'i' } },            
+            {"bids.price": req.body.search}, //ToDo
+            {year: req.body.search } //ToDo
       ]
 }
 

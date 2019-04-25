@@ -40,6 +40,12 @@ const vehicleSchema = new mongoose.Schema({
 
 
 //joi validations
+const vehicleDetailsByMultipleyearJoiSchema = {   
+    //id: Joi.objectId(),       
+    year: Joi.array().items().allow(null),
+}
+
+//joi validations
 const vehicleDetailsByYearJoiSchema = {   
     //id: Joi.objectId(),       
     year: Joi.number().min(2000).max(currentYear).required()
@@ -51,8 +57,15 @@ function validateVehicleYear(year) {
     return Joi.validate(year, vehicleDetailsByYearJoiSchema, { allowUnknown: true });
 }
 
+function validateVehicleMultipleyear(year) {
+    //console.log(year)
+    return Joi.validate(year, vehicleDetailsByMultipleyearJoiSchema, { allowUnknown: true });
+}
+
 
 const Vehicle = mongoose.model('Vehicle', vehicleSchema);
 module.exports.Vehicle = Vehicle;
 
 module.exports.validateVehicleYear = validateVehicleYear;
+
+module.exports.validateVehicleMultipleyear = validateVehicleMultipleyear;

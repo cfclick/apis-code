@@ -257,11 +257,15 @@ const listingJoiSchema = {
     sortDirection:Joi.string().trim().required(),
     sortProperty:Joi.string().trim().required(),
     pageNumber:Joi.number().min(0).required(), 
-    size :Joi.number().min(10).positive().required(),
+    size :Joi.number().min(5).max(100).positive().required(),
     type:Joi.string().trim().required(),
     filters:Joi.object({
         bid: Joi.array().items().allow(null),
-        years: Joi.array().items().allow(null)
+        years: Joi.array().items().allow(null),
+        year: Joi.array().items().allow(null),
+        make: Joi.array().items().allow(null),
+        model: Joi.array().items().allow(null),
+        trim: Joi.array().items().allow(null)
     })
 }
 

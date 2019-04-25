@@ -2,7 +2,7 @@ const multer = require('multer');
 const multerS3 = require('multer-s3');
 const aws = require('aws-sdk');
 const config = require('config');
-console.log(config.get('aws.accessKey')+':'+config.get('aws.secretKey')+':'+config.get('aws.region')+':'+config.get('aws.bucket'))
+//console.log(config.get('aws.accessKey')+':'+config.get('aws.secretKey')+':'+config.get('aws.region')+':'+config.get('aws.bucket'))
 aws.config.update({
     // Your SECRET ACCESS KEY from AWS should go here,
     // Never share it!
@@ -42,3 +42,4 @@ const upload = multer({
 });
 
 module.exports = upload;
+module.s3 = s3;
