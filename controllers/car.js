@@ -118,8 +118,8 @@ controller.post('/listingCars',[validate(validateCarListing)], async(req,res,nex
     //calculating the limit and skip attributes to paginate records
     let totalPages = totalRecordsAfterFilter / req.body.size;
     let start = (req.body.pageNumber<=1)? 0 : (req.body.pageNumber-1) * req.body.size;
-    console.log('start',start);
-    console.log('condition',condition);
+   // console.log('start',start);
+   // console.log('condition',condition);
     let records = await Car.find(condition).   
         sort(sortCondition).
         skip(start).
@@ -148,7 +148,7 @@ controller.post('/listingDealersCars',[validate(validateDealerCarListing)], asyn
    
     let sortCondition = {}
     sortCondition[req.body.sortProperty] = req.body.sortDirection=='asc'?1:-1 //1 for ascending -1 for descending order sort
-    console.log('condition',condition)
+   // console.log('condition',condition)
     
     // calculating the car's count
     let totalRecords = await Car.find(condition).countDocuments()  
@@ -170,7 +170,7 @@ function filters(req, condition){
 
     //if filters contains the 'bid price' filter
     if(_.has(req.body.filters,['price_range']))
-        condition['bids.price'] = { $gte: (req.body.filters.price_range[0]), $lte: (req.body.filters.price_range[1]) }
+        condition['offer_in_hand'] = { $gte: (req.body.filters.price_range[0]), $lte: (req.body.filters.price_range[1]) }
     
     //if filters contains the 'dates' filter
     if(_.has(req.body.filters,['dates']))
@@ -181,21 +181,39 @@ function filters(req, condition){
         condition['year'] = { $gte: req.body.filters.year_range[0],$lte: req.body.filters.year_range[1] }
     
     //if filters contains the 'year' filter
-    if(_.has(req.body.filters,['year']))
+    if(_.has(req.body.filters,['year']) && req.body.filters['year'].length>0)
         condition['year'] = { $in : req.body.filters['year'] }  
 
     //if filters contains the 'make' filter
-    if(_.has(req.body.filters,['make']))
-        condition['make'] = req.body.filters['make']
+    if(_.has(req.body.filters,['make']) && req.body.filters['make'].length>0)
+        condition['make'] = { $in : req.body.filters['make'] }  
+
 
     //if filters contains the 'model' filter
-    if(_.has(req.body.filters,['model']))
-        condition['model'] = req.body.filters['model']
+    if(_.has(req.body.filters,['model']) && req.body.filters['model'].length>0)
+        condition['model'] = { $in : req.body.filters['model'] }  
 
 
     //if filters contains the 'trim' filter
-    if(_.has(req.body.filters,['trim']))
-        condition['trim'] = req.body.filters['trim']
+    if(_.has(req.body.filters,['trim']) && req.body.filters['trim'].length>0)
+        condition['trim'] = { $in : req.body.filters['trim'] }  
+    
+    //if filters contains the 'body_style' filter
+    if(_.has(req.body.filters,['body_style']) && req.body.filters['body_style'].length>0)
+        condition['body_style'] = { $in : req.body.filters['body_style'] }  
+
+
+    //if filters contains the 'transmission' filter
+    if(_.has(req.body.filters,['transmission']) && req.body.filters['transmission'].length>0)
+        condition['transmission'] = { $in : req.body.filters['transmission'] }
+    
+    //if filters contains the 'exterior_color' filter
+    if(_.has(req.body.filters,['exterior_color']) && req.body.filters['exterior_color'].length>0)
+        condition['exterior_color'] = { $in : req.body.filters['exterior_color'] }
+
+    //if filters contains the 'interior_color' filter
+    if(_.has(req.body.filters,['interior_color']) && req.body.filters['interior_color'].length>0)
+        condition['interior_color'] = { $in : req.body.filters['interior_color'] }
     
     
     return condition  
@@ -211,8 +229,9 @@ function search(req){
             { body_style: { $regex: req.body.search,$options: 'i' } },
             { type: { $regex: req.body.search,$options: 'i' } },
             { body_style: { $regex: req.body.search,$options: 'i' } },            
-            {"bids.price": req.body.search}, //ToDo
+            /*{offer_in_hand: req.body.search}, //ToDo
             {year: req.body.search } //ToDo
+            */
       ]
 }
 

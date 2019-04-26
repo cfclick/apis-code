@@ -16,7 +16,7 @@ const {
 
 const express = require('express');
 const controller = express.Router();
-
+let conditionFilters = {}
 /**
  * Common Apis 
 */
@@ -48,12 +48,45 @@ controller.post('/fetchVehicleStatisticsByYear',[validate(validateVehicleYear)],
 */
 controller.post('/fetchVehicleStatisticsByMultipleyear',[validate(validateVehicleMultipleyear)], async(req,res,next)=>{
 
-	let condition = {};
-    //condition to fetch vehicle details by Year
-    condition['year'] = { $in : req.body.year } 
 
-    console.log('condition',condition);
-    let records = await Vehicle.find(condition,{ "makes.name":1, "makes._id":1 })
+    //condition to fetch vehicle details by Year
+    conditionFilters['year'] = { $in : req.body.year } 
+
+    console.log('conditionFilters',conditionFilters);
+    let records = await Vehicle.find(conditionFilters,{ "makes.name":1, "makes._id":1 })
+   
+    return res.status(def.API_STATUS.SUCCESS.OK).send(records);	
+	
+})
+
+
+/**
+ * get models by make
+*/
+controller.post('/fetchVehicleStatisticsByMultiplemake', async(req,res,next)=>{
+
+
+    //condition to fetch vehicle details by Year
+    conditionFilters['makes.name'] = { $in : req.body.make } 
+
+    console.log('conditionFilters',conditionFilters);
+    let records = await Vehicle.find(conditionFilters,{ "makes.models.name":1, "makes.models._id":1 })
+   
+    return res.status(def.API_STATUS.SUCCESS.OK).send(records);	
+	
+})
+
+/**
+ * get trims by model
+*/
+controller.post('/fetchVehicleStatisticsByMultiplemodel', async(req,res,next)=>{
+
+
+    //condition to fetch vehicle details by Year
+    conditionFilters['makes.models.name'] = { $in : req.body.model } 
+
+    console.log('conditionFilters',conditionFilters);
+    let records = await Vehicle.find(conditionFilters,{ "makes.models.trims.name":1, "makes.models.trims._id":1 })
    
     return res.status(def.API_STATUS.SUCCESS.OK).send(records);	
 	
