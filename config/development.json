@@ -16,7 +16,7 @@
             "localUrl": "mongodb://localhost/",
             "mlabUrl": "mongodb://"
         },
-        "name": "topautobid",
+        "name": "topauto",
         "user": "",
         "pass": ""
     }

@@ -85,7 +85,7 @@ controller.post('/imageUploadtoBucket', function(req, res) {
 	  if (err) {
 		return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err.message);
 	  }	
-		
+	 	
 	  return res.status(def.API_STATUS.SUCCESS.OK).send({fileLocation: req.file.location, fileKey:req.file.key}); 
 	});
 });
