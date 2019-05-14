@@ -15,24 +15,22 @@ const {
 const express = require('express');
 const controller = express.Router();
 
-//Listing dealerships according to loggedin dealer
-controller.post('/listing', [validate(validateListing)], async (req, res, next) => {
+/* ====================== Dealership list on datatbles =======================================*/
+controller.post('/listingDealershipOnDatable', [validate(validateListing)], async (req, res, next) => {
 
   //define the condition 
   let condition = { "dealer_id": req.body.dealer_id }
 
   //text search on listed columns
-  if (req.body.search) {
+  if(req.body.search)
+    condition['$or'] = search(req);
 
-    condition['$or'] = [
-      { legalcoroporationname: { $regex: req.body.search, $options: 'i' } },
-      { dealershipnumber: { $regex: req.body.search, $options: 'i' } },
-      { city: { $regex: req.body.search, $options: 'i' } },
-      { state: { $regex: req.body.search, $options: 'i' } },
-      { zip: { $regex: req.body.search, $options: 'i' } },
-    ]
-  }
-  //condition['$text'] = { $search: req.body.search }
+
+//if filters contains the 'dates' filter
+  if(_.has(req.body.filters,['dates']))
+    condition['created_at'] = { $gte: (req.body.filters.dates['transformedStartDate']),$lte: (req.body.filters.dates['transformedEndDate']) }
+
+
 
 
   //sorting
@@ -46,6 +44,7 @@ controller.post('/listing', [validate(validateListing)], async (req, res, next) 
   let totalPages = totalRecords / req.body.size;
   let start = req.body.pageNumber * req.body.size;
 
+  console.log('condition dealership',condition);
 
   let records = await Dealership.
     find(condition).   
@@ -115,5 +114,18 @@ controller.post('/newLegalContact', [validate(validateLegalContact)], async (req
   });
 
 })
+
+
+
+function search(req){
+  //text search on listed columns
+  return [
+    { legalcoroporationname: { $regex: req.body.search, $options: 'i' } },
+    { dealershipnumber: { $regex: req.body.search, $options: 'i' } },
+    { city: { $regex: req.body.search, $options: 'i' } },
+    { state: { $regex: req.body.search, $options: 'i' } },
+    { zip: { $regex: req.body.search, $options: 'i' } },
+  ]
+}
 
 module.exports = controller;

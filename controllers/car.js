@@ -9,7 +9,8 @@ const {
     validateCar,
     validateRemoveCar,
     validateCarListing,
-    validateDealerCarListing
+    validateDealerCarListing,
+    validateCarDetail
 } = require('../models/car');
 
 const {
@@ -29,23 +30,24 @@ const controller = express.Router();
 */
 
 controller.post('/newCar',[validate(validateCar)],async(req,res,next)=>{
-
+	console.log(req.body);
     //checking unique car vin
-   let car = await Car.findOne({ "vin": req.body.vin }, { _id: 1 });
+   //let car = await Car.findOne({ "vin_number": req.body.vin }, { _id: 1 });
 
-   if (car) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('Car VIN already exist.');
+   //if (car) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('Car VIN already exist.');
 
    //fetching the last record's ref
-   let lastRecord = await Car.findOne( { }, { ref: 1,_id:-1 } ).sort( { _id: -1 } )
-   let nextRef =  ((lastRecord) && lastRecord.ref)?lastRecord.ref+1:1
-   console.log('nextRef:',nextRef);
-   req.body.ref = nextRef; //modify req object by adding new ref
+   //let lastRecord = await Car.findOne( { }, { ref: 1,_id:-1 } ).sort( { _id: -1 } )
+   //let nextRef =  ((lastRecord) && lastRecord.ref)?lastRecord.ref+1:1
+   //console.log('nextRef:',nextRef);
+   //req.body.ref = nextRef; //modify req object by adding new ref
 
    //preparing new car object 
-   car = new Car(_.pick(req.body, ['vin','seller_id', 'mileage', 'year', 'make', 'model', 'body_style', 'trim', 'doors','engine', 'transmission','fuel_type','drive_type','interior_color','exterior_color','interior_material','best_bid','created_at','updated_at','type','offer_in_hand','comments','car_selleing_radius','location','bids','images','offer_in_hand_images','ref']));
+   car = new Car(_.pick(req.body, ['vin_number','vehicle_year','seller_id','basic_info','vehicle_images','vehicle_has_second_key','is_vehicle_aftermarket','vehicle_aftermarket','vehicle_ownership','vehicle_comments','vehicle_condition','willing_to_drive','vehicle_to_be_picked_up','willing_to_drive_how_many_miles','vehicle_offer_in_hands_price','vehicle_proof_image','created_at','updated_at']));
   
    //save new car
-   car.save(async (err, car)=>{	
+   car.save(async (err, car)=>{
+		console.log(err);
         if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Ooops, could not save car information!.');
         
         //fetching seller data 
@@ -56,7 +58,7 @@ controller.post('/newCar',[validate(validateCar)],async(req,res,next)=>{
         //send mail	
         const name = seller.name.prefix+' '+seller.name.first_name
         const webEndPoint = config.get('webEndPoint')+'/seller/login';        
-        const message='<p style="line-height: 24px; margin-bottom:15px;">'+name+',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, Yous car has been added in our system successfully.<p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using <a target="_blank" href="'+webEndPoint+'" style="text-decoration: underline;">this</a> link.</p>'
+        const message='<p style="line-height: 24px; margin-bottom:15px;">'+name+',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, Your car has been added in our system successfully.<p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using <a target="_blank" href="'+webEndPoint+'" style="text-decoration: underline;">this</a> link.</p>'
         sendMail({
             to:emailObject.email,
             subject: 'Car Added',
@@ -71,9 +73,9 @@ controller.post('/newCar',[validate(validateCar)],async(req,res,next)=>{
 })
 
 controller.post('/deleteCar',[validate(validateRemoveCar)], async(req,res,next)=>{
-    //console.log(req.body)
 
-    //checking unique car vin
+
+    //checking car exist
    let car = await Car.findOne({ "_id": req.body.id, "seller_id": req.body.seller_id }, { _id: 1 });
 
    if (!car) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('No recrod found.');
@@ -85,6 +87,18 @@ controller.post('/deleteCar',[validate(validateRemoveCar)], async(req,res,next)=
 
     res.status(def.API_STATUS.SUCCESS.OK).send(true);
     });   	
+})
+
+
+controller.post('/carDetail',[validate(validateCarDetail)], async(req,res,next)=>{
+    //console.log(req.body)
+
+
+   let car = await Car.findOne({ "_id": req.body.id });
+
+   if (!car) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('No recrod found.');
+   
+   return res.status(def.API_STATUS.SUCCESS.OK).send(car);  	
 })
 
 /* ====================== Seller car list  =======================================*/
@@ -107,7 +121,7 @@ controller.post('/listingCars',[validate(validateCarListing)], async(req,res,nex
     let sortCondition = {}
     sortCondition[req.body.sortProperty] = req.body.sortDirection=='asc'?1:-1 //1 for ascending -1 for descending order sort
     
-    
+    console.log('condition',condition);
     // calculating the car's count after search/filters
     let totalRecordsAfterFilter = await Car.find(condition).countDocuments()  
 
@@ -128,49 +142,92 @@ controller.post('/listingCars',[validate(validateCarListing)], async(req,res,nex
     return res.status(def.API_STATUS.SUCCESS.OK).send({ records:records, count:totalRecordsAfterFilter, filteredRecords:totalRecords });	
 })
 
+/* ====================== Seller car list on datatbles =======================================*/
+controller.post('/listingCarsOnDatable',[validate(validateCarListing)], async(req,res,next)=>{
+
+    
+    //define the condition to fetch records (All, active, sold, archived)
+    let condition = (req.body.type != 'all')? ({ "type": req.body.type  }):{};
+
+    //condition to filter cars according to loggedin seller
+    condition['seller_id'] = req.body.seller_id
+
+    if (! _.isEmpty(req.body.filters, true) ){
+        condition = filters(req, condition)
+    } 
+
+    if(req.body.search)
+        condition['$or'] = search(req);
+   
+    let sortCondition = {}
+    sortCondition[req.body.sortProperty] = req.body.sortDirection=='asc'?1:-1 //1 for ascending -1 for descending order sort
+    
+    console.log('condition',condition);
+    // calculating the car's count after search/filters
+    let totalRecordsAfterFilter = await Car.find(condition).countDocuments()  
+
+    // calculating the car's count
+    let totalRecords = await Car.find().countDocuments()  
+
+   
+    //calculating the limit and skip attributes to paginate records
+    let totalPages = totalRecordsAfterFilter / req.body.size;
+    //let start = (req.body.pageNumber<=1)? 0 : (req.body.pageNumber-1) * req.body.size;
+    let start = req.body.pageNumber * req.body.size;
+   // console.log('start',start);
+   // console.log('condition',condition);
+    let records = await Car.find(condition).   
+        sort(sortCondition).
+        skip(start).
+        limit(req.body.size)   
+
+    return res.status(def.API_STATUS.SUCCESS.OK).send({ records:records, count:totalRecordsAfterFilter, filteredRecords:totalRecords });	
+})
+
 /* ====================== Dealer car list  =======================================*/
 controller.post('/listingDealersCars',[validate(validateDealerCarListing)], async(req,res,next)=>{
   
      
     //define the condition to fetch records (All, active, sold, archived)
-    let condition = (req.body.type != 'all')? ({ "type": req.body.type  }):{};
+    let condition = { "type": req.body.type  };
 
-    //condition to filter cars on which dealer have bid  
-    condition['bids.dealer_id'] = req.body.dealer_id
-   
     if (! _.isEmpty(req.body.filters, true) ){
         condition = filters(req, condition)
-    }   
-        
+    } 
 
-    if (req.body.search)    
+    if(req.body.search)
         condition['$or'] = search(req);
    
     let sortCondition = {}
     sortCondition[req.body.sortProperty] = req.body.sortDirection=='asc'?1:-1 //1 for ascending -1 for descending order sort
-   // console.log('condition',condition)
     
+    console.log('condition',condition);
+    
+    // calculating the car's count after search/filters
+    let totalRecordsAfterFilter = await Car.find(condition).countDocuments()  
+
     // calculating the car's count
-    let totalRecords = await Car.find(condition).countDocuments()  
+    let totalRecords = await Car.find().countDocuments()  
 
-
-    //calculating the limit and skip attributes to paginate records
-    let totalPages = totalRecords / req.body.size;
-    let start = req.body.pageNumber * req.body.size;
-
-
-    let records = await Car.find(condition).
-    //populate('bids.dealer_id').   
-    sort(sortCondition).skip(start).limit(req.body.size)
    
-    return res.status(def.API_STATUS.SUCCESS.OK).send({ records:records, count:totalRecords });	
+    //calculating the limit and skip attributes to paginate records
+    let totalPages = totalRecordsAfterFilter / req.body.size;
+    let start = (req.body.pageNumber<=1)? 0 : (req.body.pageNumber-1) * req.body.size;
+   // console.log('start',start);
+   // console.log('condition',condition);
+    let records = await Car.find(condition).   
+        sort(sortCondition).
+        skip(start).
+        limit(req.body.size) 
+   
+        return res.status(def.API_STATUS.SUCCESS.OK).send({ records:records, count:totalRecordsAfterFilter, filteredRecords:totalRecords });	
 }) 
 
 function filters(req, condition){
 
     //if filters contains the 'bid price' filter
     if(_.has(req.body.filters,['price_range']))
-        condition['offer_in_hand'] = { $gte: (req.body.filters.price_range[0]), $lte: (req.body.filters.price_range[1]) }
+        condition['vehicle_ownership.vehicle_pay_off'] = { $gte: (req.body.filters.price_range[0]), $lte: (req.body.filters.price_range[1]) }
     
     //if filters contains the 'dates' filter
     if(_.has(req.body.filters,['dates']))
@@ -178,57 +235,60 @@ function filters(req, condition){
     
     //if filters contains the 'years' filter
     if(_.has(req.body.filters,['year_range']))
-        condition['year'] = { $gte: req.body.filters.year_range[0],$lte: req.body.filters.year_range[1] }
+        condition['vehicle_year'] = { $gte: req.body.filters.year_range[0],$lte: req.body.filters.year_range[1] }
     
     //if filters contains the 'year' filter
     if(_.has(req.body.filters,['year']) && req.body.filters['year'].length>0)
-        condition['year'] = { $in : req.body.filters['year'] }  
+        condition['vehicle_year'] = { $in : req.body.filters['year'] }  
 
     //if filters contains the 'make' filter
     if(_.has(req.body.filters,['make']) && req.body.filters['make'].length>0)
-        condition['make'] = { $in : req.body.filters['make'] }  
+        condition['basic_info.vehicle_make'] = { $in : req.body.filters['make'] }  
 
 
     //if filters contains the 'model' filter
     if(_.has(req.body.filters,['model']) && req.body.filters['model'].length>0)
-        condition['model'] = { $in : req.body.filters['model'] }  
+        condition['basic_info.vehicle_model'] = { $in : req.body.filters['model'] }  
 
 
     //if filters contains the 'trim' filter
     if(_.has(req.body.filters,['trim']) && req.body.filters['trim'].length>0)
-        condition['trim'] = { $in : req.body.filters['trim'] }  
+        condition['basic_info.vehicle_trim'] = { $in : req.body.filters['trim'] }  
     
     //if filters contains the 'body_style' filter
-    if(_.has(req.body.filters,['body_style']) && req.body.filters['body_style'].length>0)
-        condition['body_style'] = { $in : req.body.filters['body_style'] }  
+    if(_.has(req.body.filters,['body_style']) && req.body.filters['body_style'].length>0 && !_.includes(req.body.filters['body_style'],'All body'))
+        condition['basic_info.vehicle_body_type'] = { $in : req.body.filters['body_style'] }  
 
 
     //if filters contains the 'transmission' filter
     if(_.has(req.body.filters,['transmission']) && req.body.filters['transmission'].length>0)
-        condition['transmission'] = { $in : req.body.filters['transmission'] }
+        condition['basic_info.vehicle_transmission'] = { $in : req.body.filters['transmission'] }
     
     //if filters contains the 'exterior_color' filter
     if(_.has(req.body.filters,['exterior_color']) && req.body.filters['exterior_color'].length>0)
-        condition['exterior_color'] = { $in : req.body.filters['exterior_color'] }
+        condition['basic_info.vehicle_exterior_color'] = { $in : req.body.filters['exterior_color'] }
 
     //if filters contains the 'interior_color' filter
     if(_.has(req.body.filters,['interior_color']) && req.body.filters['interior_color'].length>0)
-        condition['interior_color'] = { $in : req.body.filters['interior_color'] }
+        condition['basic_info.vehicle_interior_color'] = { $in : req.body.filters['interior_color'] }
+
+    //if filters contains the 'interior_color' filter
+    if(_.has(req.body.filters,['miles']) && req.body.filters['miles'].length>0)
+        condition['willing_to_drive_how_many_miles'] = { $in : req.body.filters['miles'] }
     
-    
+        
     return condition  
 }
 
 function search(req){
     //text search on listed columns
     return [
-            { vin: { $regex: req.body.search,$options: 'i' } },            
-            { make: { $regex: req.body.search,$options: 'i' } },
-            { model: { $regex: req.body.search,$options: 'i' } },
-            { trim: { $regex: req.body.search,$options: 'i' } },
-            { body_style: { $regex: req.body.search,$options: 'i' } },
-            { type: { $regex: req.body.search,$options: 'i' } },
-            { body_style: { $regex: req.body.search,$options: 'i' } },            
+            { vin_number: { $regex: req.body.search,$options: 'i' } },            
+            { 'basic_info.vehicle_make': { $regex: req.body.search,$options: 'i' } },
+            { 'basic_info.vehicle_model': { $regex: req.body.search,$options: 'i' } },
+            { 'basic_info.vehicle_trim': { $regex: req.body.search,$options: 'i' } },
+            { 'basic_info.vehicle_body_type': { $regex: req.body.search,$options: 'i' } },
+            { 'basic_info.type': { $regex: req.body.search,$options: 'i' } },             
             /*{offer_in_hand: req.body.search}, //ToDo
             {year: req.body.search } //ToDo
             */
