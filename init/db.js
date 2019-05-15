@@ -16,7 +16,7 @@ module.exports = function () {
         conn_str = db_localUrl + db_name;
     else
         conn_str = db_mlabUrl + db_user + ':' + db_pass + '@ds127944.mlab.com:27944/' + db_name;
-    
+     console.log('the data base urll is',conn_str);
         mongoose.connect(conn_str, {
             useNewUrlParser: true
         })

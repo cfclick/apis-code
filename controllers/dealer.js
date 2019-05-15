@@ -3,6 +3,7 @@ const def = require('../models/def/statuses');
 const validate = require('../interceptors/validate');
 const auth = require('../interceptors/auth');
 const upload = require('../helpers/upload');
+const mongoose = require('mongoose');
 const _ = require('lodash'); //js utility lib
 const bcrypt = require('bcrypt'); // for password encryption
 const {
@@ -224,23 +225,50 @@ controller.post('/createBid', validate(validateBid), async (req, res) => {
 
 })
 //get all purchases
-controller.post('/getpurchases', async (req, res) => {
-	console.log('The Request object is ', req.body);
-	let start = req.body.pageNumber * req.body.size;
+controller.post('/getPurchaseList', async (req, res) => {
+	let body = req.body;
 
-	let totalRecords = Bid.count({
-		dealer_id: mongoose
-			.Types
-			.ObjectId(req.body.seller_id), bid_acceptance: 'accepted'
-	});
+	let condition = {
+		"dealer_id": mongoose.Types.ObjectId(req.body.dealer_id)
+		, "bid_acceptance": 'accepted'
+	};
 
-	let records = Bid.find({
-		dealer_id: mongoose
-			.Types
-			.ObjectId(req.body.seller_id), bid_acceptance: 'accepted'
+
+	if (body.search && isNaN(body.search)) {
+		condition['$or'] = [
+			{ fee_status: { $regex: req.body.search, $options: 'i' } },
+		]
+	}
+	if (body.search && !isNaN(body.search)) {
+
+		condition['price'] = body.search
+	}
+	//if filters contains the 'dates' filter
+	if (_.has(req.body.filters, ['dates']))
+
+	condition['$or']= [
+		{ bid_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) }},
+		{ bid_acceptance_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) }},
+	]
+
+   console.log('the flters are ',condition)
+	let totalRecords = await Bid.count(condition);
+
+	const start = body.pageNumber * body.size;
+	const end = Math.min((start + body.size), totalRecords);
+
+	let records = await Bid.find(condition).populate({
+		path: "dealer_id",
+		model: "Dealer",
+		select: "name"
+	}).populate({
+		path: "car_id",
+		model: "Car",
+		select: "ref"
 	})
-		.skip(start).limit(req.body.size);
-	return res.status(def.API_STATUS.SUCCESS.OK).send({ records: records, total: totalRecords });
+		.skip(start).limit(end);
+	return res.status(def.API_STATUS.SUCCESS.OK).send({ records: records, count: totalRecords });
 })
+
 
 module.exports = controller;

@@ -176,6 +176,10 @@ const carSchema = new mongoose.Schema({
             },
         }
     ],
+    higest_bid:{
+        type:Number,
+        default:0
+    },
     images: [], 
     offer_in_hand_images: [],
 }); 

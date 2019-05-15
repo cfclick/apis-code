@@ -15,6 +15,10 @@ const bidSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'Dealer'
     },
+    dealership_id:{
+        type: Schema.Types.ObjectId,
+        ref: 'DealerShip'
+    },
     price: {
         type: Number
     },
