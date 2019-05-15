@@ -10,7 +10,8 @@ const {
     validateRemoveCar,
     validateCarListing,
     validateDealerCarListing,
-    validateCarDetail
+    validateCarDetail,
+    validateContactRequest
 } = require('../models/car');
 
 const {
@@ -43,7 +44,7 @@ controller.post('/newCar',[validate(validateCar)],async(req,res,next)=>{
    //req.body.ref = nextRef; //modify req object by adding new ref
 
    //preparing new car object 
-   car = new Car(_.pick(req.body, ['vin_number','vehicle_year','seller_id','basic_info','vehicle_images','vehicle_has_second_key','is_vehicle_aftermarket','vehicle_aftermarket','vehicle_ownership','vehicle_comments','vehicle_condition','willing_to_drive','vehicle_to_be_picked_up','willing_to_drive_how_many_miles','vehicle_offer_in_hands_price','vehicle_proof_image','created_at','updated_at']));
+   car = new Car(_.pick(req.body, ['vin_number','vehicle_year','seller_id','basic_info','vehicle_images','vehicle_has_second_key','is_vehicle_aftermarket','vehicle_aftermarket','vehicle_ownership','vehicle_comments','vehicle_condition','willing_to_drive','vehicle_to_be_picked_up','willing_to_drive_how_many_miles','vehicle_finance_details','created_at','updated_at']));
   
    //save new car
    car.save(async (err, car)=>{
@@ -143,45 +144,70 @@ controller.post('/listingCars',[validate(validateCarListing)], async(req,res,nex
 })
 
 /* ====================== Seller car list on datatbles =======================================*/
-controller.post('/listingCarsOnDatable',[validate(validateCarListing)], async(req,res,next)=>{
+controller.post('/listingCarsOnDatable', [validate(validateCarListing)], async (req, res, next) => {
 
-    
+
     //define the condition to fetch records (All, active, sold, archived)
-    let condition = (req.body.type != 'all')? ({ "type": req.body.type  }):{};
+    let condition = (req.body.type != 'all') ? ({ "type": req.body.type }) : {};
 
     //condition to filter cars according to loggedin seller
-    condition['seller_id'] = req.body.seller_id
+    condition['seller_id'] = mongoose.Types.ObjectId(req.body.seller_id)
 
-    if (! _.isEmpty(req.body.filters, true) ){
+    if (!_.isEmpty(req.body.filters, true)) {
         condition = filters(req, condition)
-    } 
+    }
 
-    if(req.body.search)
+    if (req.body.search)
         condition['$or'] = search(req);
-   
+
     let sortCondition = {}
-    sortCondition[req.body.sortProperty] = req.body.sortDirection=='asc'?1:-1 //1 for ascending -1 for descending order sort
-    
-    console.log('condition',condition);
+    sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort
+
+    console.log('condition', condition);
     // calculating the car's count after search/filters
-    let totalRecordsAfterFilter = await Car.find(condition).countDocuments()  
+    let totalRecordsAfterFilter = await Car.find(condition).countDocuments()
 
     // calculating the car's count
-    let totalRecords = await Car.find().countDocuments()  
+    let totalRecords = await Car.find().countDocuments()
 
-   
+
     //calculating the limit and skip attributes to paginate records
     let totalPages = totalRecordsAfterFilter / req.body.size;
     //let start = (req.body.pageNumber<=1)? 0 : (req.body.pageNumber-1) * req.body.size;
     let start = req.body.pageNumber * req.body.size;
-   // console.log('start',start);
-   // console.log('condition',condition);
-    let records = await Car.find(condition).   
-        sort(sortCondition).
-        skip(start).
-        limit(req.body.size)   
+    let records = await Car.aggregate([
+        {
+            $match: condition
+            
+        },
+        {
+            $lookup: {
+                from: "car_bids",
+                localField: "_id",    // field in the car collection
+                foreignField: "car_id",  // field in the car_bids collection
+                as: "carbids"
+            }
 
-    return res.status(def.API_STATUS.SUCCESS.OK).send({ records:records, count:totalRecordsAfterFilter, filteredRecords:totalRecords });	
+        },
+        {
+            $addFields: {
+                bids: { $size: "$carbids" }
+
+            }
+        },
+        {
+           $sort:sortCondition
+        },
+        {
+            $skip: parseInt(start)
+        },
+        {
+            $limit: parseInt(req.body.size)
+        },
+       
+    ])
+
+    return res.status(def.API_STATUS.SUCCESS.OK).send({ records: records, count: totalRecordsAfterFilter, filteredRecords: totalRecords });
 })
 
 /* ====================== Dealer car list  =======================================*/
@@ -222,6 +248,22 @@ controller.post('/listingDealersCars',[validate(validateDealerCarListing)], asyn
    
         return res.status(def.API_STATUS.SUCCESS.OK).send({ records:records, count:totalRecordsAfterFilter, filteredRecords:totalRecords });	
 }) 
+
+/* ====================== Dealer car list  =======================================*/
+controller.post('/contactRequest',[validate(validateContactRequest)], async(req,res,next)=>{
+    const name = req.body.name;
+    const webEndPoint = config.get('webEndPoint')+'/seller/login';        
+    const message='<p style="line-height: 24px; margin-bottom:15px;">Hello Admin,</p><p style="line-height: 24px;margin-bottom:15px;">We got a new contact request to know more information about car. Customer details is mentioned below: <p style="line-height: 24px; margin-bottom:15px;">Name:'+req.body.name+'</p> <p style="line-height: 24px; margin-bottom:15px;">Email:'+req.body.email+'</p><p style="line-height: 24px; margin-bottom:15px;">Phone:'+req.body.country_code+' '+req.body.phone+'</p><p style="line-height: 24px; margin-bottom:15px;">Message:'+req.body.message+'</p><p style="line-height: 24px; margin-bottom:15px;">Contact on:'+req.body.preference+'</p><p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using <a target="_blank" href="'+webEndPoint+'" style="text-decoration: underline;">this</a> link.</p>'
+    console.log(message);
+    sendMail({
+        to:req.body.email,
+        subject: 'New Contact Request',
+        message:message,
+    })
+
+    //sending response
+    res.status(def.API_STATUS.SUCCESS.OK).send(true);
+})
 
 function filters(req, condition){
 
