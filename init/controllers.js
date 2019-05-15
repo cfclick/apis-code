@@ -28,7 +28,7 @@ module.exports = function (app) {
     app.use('/api/seller', seller);
     app.use('/api/dealer', dealer);
     app.use('/api/car', car);
-    app.use('/api/dealership', [authMiddleware], dealership);
+    app.use('/api/dealership', /*[authMiddleware],*/ dealership);
     app.use('/api/common', common);
 
     //Error Handler

@@ -103,7 +103,12 @@ const dealershipSchema = new mongoose.Schema({
                         type: Boolean,
                         required: true,
                         default: false
-                    }
+                    },
+                    country_code: {
+                        type: String,
+                        required: true,
+                        default:'+1'
+                    },
                 }
             ],
             phones: [
@@ -123,7 +128,8 @@ const dealershipSchema = new mongoose.Schema({
                     },
                     country_code: {
                         type: String,
-                        required: true
+                        required: true,
+                        default:'+1'
                     },
                 }
             ],
@@ -192,7 +198,7 @@ const dealershipJoiSchema = Joi.array().min(1).items(
         legalcoroporationname: Joi.string().trim().min(2).max(50).required(),
         dealershipnumber: Joi.string().trim().min(2).max(50).required(),
         mainaddressline1: Joi.string().trim().required(),
-        mainaddressline2: Joi.string().allow('').optional().trim(),
+        mainaddressline2:Joi.string().allow(null).optional().trim(),    
         state: Joi.string().trim().min(2).max(50).required(),
         city: Joi.string().trim().min(2).max(50).required(),
         zip: Joi.string().trim().min(2).max(50).required(),
@@ -233,7 +239,7 @@ const contactJoiSchema = {
             ).required(),
             title: Joi.string().trim().required(),
             address_1: Joi.string().trim().required(),
-            address_2: Joi.string().allow('').optional().trim(),
+            address_2: Joi.string().allow(null).optional().trim(),   
             state: Joi.string().trim().min(2).max(50).required(),
             city: Joi.string().trim().min(2).max(50).required(),
             zip: Joi.string().trim().min(2).max(50).required(),
@@ -251,7 +257,7 @@ const listingJoiSchema = {
     sortDirection:Joi.string().trim().required(),
     sortProperty:Joi.string().trim().required(),
     pageNumber:Joi.number().min(0).required(), 
-    size :Joi.number().min(10).positive().required(),
+    size :Joi.number().min(6).max(96).positive().required(),
 }
 
 // validating remove 

@@ -42,4 +42,4 @@ const upload = multer({
 });
 
 module.exports = upload;
-module.s3 = s3;
+

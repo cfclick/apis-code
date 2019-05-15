@@ -3,6 +3,7 @@ Joi.objectId = require('joi-objectid')(Joi);
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const _ = require('lodash'); //js utility lib
+const { Car } = require('./car');
 
 
 
@@ -15,7 +16,7 @@ const bidSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'Dealer'
     },
-    dealership_id:{
+    dealership_id: {
         type: Schema.Types.ObjectId,
         ref: 'DealerShip'
     },
@@ -33,23 +34,9 @@ const bidSchema = new mongoose.Schema({
         enum: ["active", "rejected", "accepted"],
         default: 'active'
     },
-    bid_acceptance_date:{
-          type:Date,
-          trim:true
-    },
-    time: {
-        hour: {
-            type: Number,
-            default: 13,
-        },
-        minute: {
-            type: Number,
-            default: 30,
-        },
-        second: {
-            type: Number,
-            default: 0,
-        }
+    bid_acceptance_date: {
+        type: Date,
+        trim: true
     },
     fee_status: {
         type: String,
@@ -64,32 +51,40 @@ const bidSchema = new mongoose.Schema({
     }
 
 });
+
+//defined a post hook for calculate higest bid and store in the car 
+bidSchema.post('save', async function (doc, next) {
+    //   find the best bid price
+    let bid = await this.constructor.findOne({ car_id: doc.car_id }).sort({'price':-1});
+    //   find the car to update  higest bid
+    let updateCar = await   Car.findOneAndUpdate({ _id: doc.car_id },{ $set:{best_bid:bid.price} },{ new: true });
+   
+    next()
+
+
+})
+
 //defined validators for bid schema
-const joiBidSchema  = {
-    car_id:Joi.objectId().required(),
-    dealer_id:Joi.objectId().required(),
-    price:Joi.number().required(),
-    bid_date:Joi.date(),
-    bid_acceptance:Joi.string().trim().required(),
-    bid_acceptance_date:Joi.date(),
-    time: Joi.object({
-        hour: Joi.number().min(1).max(24).positive().required(),
-        minute: Joi.number().min(1).max(60).positive().required(),
-        second: Joi.number().min(0).max(60).required()
-    }).required(),
-    fee_status:Joi.string().trim(),
-    updated_by:Joi.objectId()
+const joiBidSchema = {
+    car_id: Joi.objectId().required(),
+    dealer_id: Joi.objectId().required(),
+    price: Joi.number().required(),
+    bid_date: Joi.date(),
+    bid_acceptance: Joi.string().trim().required(),
+    bid_acceptance_date: Joi.date(),
+    fee_status: Joi.string().trim(),
+    updated_by: Joi.objectId()
 }
 
 //valid the bid using joi schema
-function validateBid(bid){
-    return Joi.validate(bid,joiBidSchema,{allowUnknown:true})
+function validateBid(bid) {
+    return Joi.validate(bid, joiBidSchema, { allowUnknown: true })
 }
 
 
 //defining the modal(collection) name
-const bid  = mongoose.model('car_bids',bidSchema);
+const Bid = mongoose.model('car_bids', bidSchema);
 //export the bid schema
-module.exports = bid;
+module.exports.Bid = Bid;
 module.exports.validateBid = validateBid;
 
