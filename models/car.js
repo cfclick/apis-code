@@ -39,7 +39,6 @@ const carSchema = new mongoose.Schema({
 	],
 	best_bid:{
         type: Number, 
-        trim: true,
         default:0,
        // text: true
     },  
@@ -304,6 +303,19 @@ const carSchema = new mongoose.Schema({
 		ref: 'Seller',
 		default:'5cd170562688321559f12f32'
     },
+    bids:[
+        {
+            dealer_id:{              
+                type: Schema.Types.ObjectId,
+                ref: 'Dealer'
+            },
+            price:{
+                type: Number                  
+            },
+        }
+    ],
+    images: [], 
+    offer_in_hand_images: [],
     created_at: {
         type: Date,
         trim: true,  

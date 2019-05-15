@@ -110,6 +110,14 @@ const userSchema = new mongoose.Schema({
         trim: true,
         default:'web',
     },
+    is_verified:{
+        type:Boolean,
+        default:false
+    },
+    is_multifactor_authorized:{
+        type:Boolean,
+        default:false
+    }
     
 });
 
@@ -136,7 +144,7 @@ userSchema.methods.generateAuthToken = function () {
     };
     const token = jwt.sign({
         _id: this._id,
-        email: this.email,
+        email: this.emails[0].email,
         username: this.username,
         isAdmin: this.isAdmin,
         userType: this.userType,
