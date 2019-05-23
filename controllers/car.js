@@ -12,12 +12,18 @@ const {
     validateCarListing,
     validateDealerCarListing,
     validateCarDetail,
-    validateContactRequest
+    validateContactRequest,
+    validateReviewBySeller,
+    validateReviewByDealer
 } = require('../models/car');
 const {Bid}  = require('../models/bid');
 const {
     Seller
 } = require('../models/seller');
+
+const {
+    Dealer
+} = require('../models/dealer');
 
 
 const {
@@ -45,7 +51,7 @@ controller.post('/newCar', [validate(validateCar)], async (req, res, next) => {
     //req.body.ref = nextRef; //modify req object by adding new ref
 
     //preparing new car object 
-    car = new Car(_.pick(req.body, ['vin_number', 'vehicle_year', 'seller_id', 'basic_info', 'vehicle_images', 'vehicle_has_second_key', 'is_vehicle_aftermarket', 'vehicle_aftermarket', 'vehicle_ownership', 'vehicle_comments', 'vehicle_condition', 'willing_to_drive', 'vehicle_to_be_picked_up', 'willing_to_drive_how_many_miles', 'vehicle_offer_in_hands_price', 'vehicle_proof_image', 'created_at', 'updated_at']));
+    car = new Car(_.pick(req.body, ['vin_number', 'vehicle_year', 'seller_id', 'basic_info', 'vehicle_images', 'vehicle_has_second_key', 'is_vehicle_aftermarket', 'vehicle_aftermarket', 'vehicle_ownership', 'vehicle_comments', 'vehicle_condition', 'willing_to_drive', 'vehicle_to_be_picked_up', 'willing_to_drive_how_many_miles', 'vehicle_finance_details', 'created_at', 'updated_at']));
 
     //save new car
     car.save(async (err, car) => {
@@ -273,15 +279,86 @@ controller.post('/contactRequest',[validate(validateContactRequest)], async(req,
     res.status(def.API_STATUS.SUCCESS.OK).send(true);
 })
 
+
+/* ====================== Rate & review by dealer =======================================*/
+controller.post('/ratingReviewByDealer', [validate(validateReviewByDealer)], async(req,res,next)=>{
+
+    //fetching the user data
+	const dealer = await Dealer.findOne({ "_id": req.body.dealer_id }, { _id:1});
+	if(!dealer) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('No record found.');
+    let ratingReview = {
+        dealer_id:req.body.dealer_id,
+        rating:req.body.rating,
+        comment:req.body.comment,
+    }
+    Car.findOneAndUpdate({ _id: req.body._id },{ $set:{ review_by_dealer:ratingReview } },{ new: true },	function(err, doc){
+	  console.log('error',err);
+	  console.log('doc',doc);
+		if(err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err);
+
+		res.status(def.API_STATUS.SUCCESS.OK).send(doc);
+
+	});
+	
+})
+
+
+/* ====================== Rate & review by seller =======================================*/
+controller.post('/ratingReviewBySeller', [validate(validateReviewBySeller)], async(req,res,next)=>{
+
+    //fetching the user data
+	const seller = await Seller.findOne({ "_id": req.body.dealer_id }, { _id:1});
+	if(!seller) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('No record found.');
+    let ratingReview = {
+        seller_id:req.body.seller_id,
+        rating:req.body.rating,
+        comment:req.body.comment,
+    }
+    Car.findOneAndUpdate({ _id: req.body._id },{ $set:{ review_by_seller:ratingReview } },{ new: true },	function(err, doc){
+	  console.log('error',err);
+	  console.log('doc',doc);
+		if(err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err);
+
+		res.status(def.API_STATUS.SUCCESS.OK).send(doc);
+
+	});
+	
+})
+
+
+/* ====================== Change car status =======================================*/
+controller.post('/changeCarStatus', async(req,res,next)=>{
+
+    //fetching the user data
+	const car = await Car.findOne({ "_id": req.body.id }, { _id:1});
+	if(!car) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('No record found.');
+    
+    Car.findOneAndUpdate({ _id: req.body.id },{ $set:{ type:req.body.type } },{ new: true },	function(err, doc){	
+		if(err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err);
+
+		res.status(def.API_STATUS.SUCCESS.OK).send(doc);
+
+	});
+	
+})
+
 function filters(req, condition){
 
     //if filters contains the 'bid price' filter
     if (_.has(req.body.filters, ['price_range']))
-        condition['vehicle_ownership.vehicle_pay_off'] = { $gte: (req.body.filters.price_range[0]), $lte: (req.body.filters.price_range[1]) }
+        condition['vehicle_finance_details.vehicle_estimated_price'] = { $gte: (req.body.filters.price_range[0]), $lte: (req.body.filters.price_range[1]) }
 
     //if filters contains the 'dates' filter
-    if (_.has(req.body.filters, ['dates']))
-        condition['created_at'] = { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) }
+    if (_.has(req.body.filters, ['dates'])){
+        let start = new Date(req.body.filters.dates['transformedStartDate']);
+        start.setUTCHours(0,0,0,0);
+        let end = new Date(req.body.filters.dates['transformedEndDate'])
+        end.setUTCHours(23,59,59,999);
+        condition['created_at'] = { $gte: start, $lte: end }
+
+    }
+   // if (_.has(req.body.filters, ['dates']))
+    //    condition['created_at'] = { $gte: (new Date(req.body.filters.dates['transformedStartDate'])), $lte: (new Date(req.body.filters.dates['transformedEndDate'])) }
 
     //if filters contains the 'years' filter
     if (_.has(req.body.filters, ['year_range']))

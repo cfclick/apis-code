@@ -27,8 +27,17 @@ controller.post('/listingDealershipOnDatable', [validate(validateListing)], asyn
 
 
 //if filters contains the 'dates' filter
-  if(_.has(req.body.filters,['dates']))
-    condition['created_at'] = { $gte: (req.body.filters.dates['transformedStartDate']),$lte: (req.body.filters.dates['transformedEndDate']) }
+  if (_.has(req.body.filters, ['dates'])){
+    let start = new Date(req.body.filters.dates['transformedStartDate']);
+    start.setUTCHours(0,0,0,0);
+    let end = new Date(req.body.filters.dates['transformedEndDate'])
+    end.setUTCHours(23,59,59,999);
+    condition['created_at'] = { $gte: start, $lte: end }
+
+  }
+
+  //if(_.has(req.body.filters,['dates']))
+   // condition['created_at'] = { $gte: (req.body.filters.dates['transformedStartDate']),$lte: (req.body.filters.dates['transformedEndDate']) }
 
 
 

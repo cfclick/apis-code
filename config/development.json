@@ -3,7 +3,7 @@
     "debug": "true",
     "port": "3000",
     "webEndPoint": "http://54.245.128.14:4200",
-    "fromEmail":"sandeep.kumar@trigma.in",
+    "fromEmail":"prashant.ojha@trigma.com",
     "aws":{
         "accessKey":"",
         "secretKey":"",
@@ -16,7 +16,7 @@
             "localUrl": "mongodb://localhost/",
             "mlabUrl": "mongodb://"
         },
-        "name": "topauto",
+        "name": "topautobid",
         "user": "",
         "pass": ""
     }
