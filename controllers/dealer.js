@@ -10,8 +10,8 @@ const {
 	Dealer
 } = require('../models/dealer');
 //import bid modal
-const {Bid} = require('../models/bid');
-const {validateBid} = require('../models/bid');
+const { Bid } = require('../models/bid');
+const { validateBid } = require('../models/bid');
 const {
 	validateEmail,
 	validateProfile,
@@ -202,6 +202,22 @@ controller.post('/updatePassword', async (req, res, next) => {
 
 })
 
+
+
+
+//create bid...
+controller.post('/createBi', validate(validateBid), async (req, res) => {
+	sendMail({
+		to: 'asdasd',
+		subject: 'Password Reset Request: Successfully Reset',
+		message: 'message',
+	})
+	res.json({
+		succes: true,
+
+	})
+})
+
 //create bid...
 controller.post('/createBid', validate(validateBid), async (req, res) => {
 	let bid = new Bid({
@@ -215,7 +231,7 @@ controller.post('/createBid', validate(validateBid), async (req, res) => {
 		fee_status: req.body.fee_status,
 
 	})
-	console.log('the bid is ',bid)
+	console.log('the bid is ', bid)
 	bid.save(async (err, bid) => {
 		if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Ooops, could not create bid!.');
 
@@ -232,8 +248,8 @@ controller.post('/getPurchaseList', async (req, res) => {
 		"dealer_id": mongoose.Types.ObjectId(req.body.dealer_id)
 		// , "bid_acceptance": 'accepted'
 	};
-   let sortCondition = {};
-   //if filters contains the 'trim' filter
+	let sortCondition = {};
+	//if filters contains the 'trim' filter
 	sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort     
 
 	if (body.search && isNaN(body.search)) {
@@ -248,17 +264,17 @@ controller.post('/getPurchaseList', async (req, res) => {
 	//if filters contains the 'dates' filter
 	if (_.has(req.body.filters, ['dates']))
 
-	condition['$or']= [
-		{ bid_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) }},
-		{ bid_acceptance_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) }},
-	]
+		condition['$or'] = [
+			{ bid_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) } },
+			{ bid_acceptance_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) } },
+		]
 
-   console.log('the flters are ',condition)
+	console.log('the flters are ', condition)
 	let totalRecords = await Bid.count(condition);
 
 	const start = body.pageNumber * body.size;
 	// const end = Math.min((start + body.size), totalRecords);
-    console.log('the start is ',start)
+	console.log('the start is ', start)
 	let records = await Bid.find(condition).populate({
 		path: "dealer_id",
 		model: "Dealer",
@@ -268,7 +284,7 @@ controller.post('/getPurchaseList', async (req, res) => {
 		model: "Car",
 		select: "ref"
 	})
-	.sort(sortCondition).skip(start).limit(body.size);
+		.sort(sortCondition).skip(start).limit(body.size);
 	return res.status(def.API_STATUS.SUCCESS.OK).send({ records: records, count: totalRecords });
 })
 

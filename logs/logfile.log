@@ -216,3 +216,227 @@
 {"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-15T12:18:11.174Z"}
 {"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-15T12:25:13.338Z"}
 {"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-15T12:25:13.389Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T04:30:17.810Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T04:30:17.866Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T04:52:41.232Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T04:52:41.368Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T05:22:37.328Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T05:22:37.417Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T05:34:39.242Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T05:34:39.295Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T06:01:31.925Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T06:01:31.977Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T06:03:12.963Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T06:03:13.001Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T06:13:12.498Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T06:13:12.595Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T06:35:55.288Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T06:35:55.337Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T06:39:21.430Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T06:39:21.474Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T06:39:45.495Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T06:39:45.569Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T07:32:39.153Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T07:32:39.237Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T07:33:06.378Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T07:33:06.423Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T07:33:08.618Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T07:33:08.657Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T07:33:36.745Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T07:33:36.784Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T07:34:05.232Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T07:34:05.277Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T07:34:43.959Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T07:34:44.069Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T08:01:05.923Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T08:01:06.022Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-16T09:30:40.221Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-16T09:30:45.273Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T04:28:38.549Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T04:28:38.591Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T09:50:53.576Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T09:50:53.815Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T09:51:30.000Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T09:51:30.083Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T09:52:06.549Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T09:52:06.595Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T09:55:49.195Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T09:55:49.229Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T09:59:19.567Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T09:59:19.622Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T09:59:26.493Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T09:59:26.574Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:02:04.738Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:02:04.853Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:02:15.577Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:02:15.628Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:02:31.180Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:02:31.293Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:05:26.383Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:05:26.431Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:06:25.140Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:06:25.194Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:09:27.757Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:09:27.806Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:15:19.869Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:15:24.916Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:17:22.810Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:17:22.852Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:17:41.678Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:17:41.720Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:18:36.392Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:18:36.432Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:19:56.527Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:19:56.584Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:20:16.782Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:20:16.825Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:20:46.225Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:20:46.268Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:23:38.074Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:23:38.123Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:23:49.125Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:23:49.174Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:31:02.571Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:31:02.624Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:33:24.245Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:33:24.296Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:33:27.457Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:33:27.510Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:33:38.116Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:33:38.191Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:34:12.284Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:34:12.341Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:46:46.912Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:46:46.964Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:49:22.621Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:49:22.669Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:49:38.125Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:49:38.171Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T10:56:17.581Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T10:56:17.623Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T11:19:54.548Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T11:19:54.601Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T11:32:04.565Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T11:32:04.651Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-17T12:55:02.499Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-17T12:55:02.536Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T04:32:33.241Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T04:32:33.277Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:25:40.519Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:25:40.590Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:26:58.641Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:27:03.680Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:27:36.519Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:27:36.582Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:29:44.614Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:29:44.684Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:29:48.630Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:29:48.680Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:31:43.259Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:31:43.350Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:31:45.445Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:31:45.503Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:32:43.101Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:32:43.181Z"}
+{"message":"today.getFullYear is not a function","stack":"TypeError: today.getFullYear is not a function\n    at filters (/home/javid/trigma/apis-code/controllers/car.js:307:35)\n    at controller.post (/home/javid/trigma/apis-code/controllers/car.js:157:21)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at /home/javid/trigma/apis-code/interceptors/validate.js:9:9\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at Route.dispatch (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:112:3)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at /home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:281:22\n    at Function.process_params (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:335:12)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:275:10)\n    at Function.handle (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:174:3)","level":"error","timestamp":"2019-05-20T05:32:49.386Z"}
+{"message":"today.getFullYear is not a function","stack":"TypeError: today.getFullYear is not a function\n    at filters (/home/javid/trigma/apis-code/controllers/car.js:307:35)\n    at controller.post (/home/javid/trigma/apis-code/controllers/car.js:157:21)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at /home/javid/trigma/apis-code/interceptors/validate.js:9:9\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at Route.dispatch (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:112:3)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at /home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:281:22\n    at Function.process_params (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:335:12)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:275:10)\n    at Function.handle (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:174:3)","level":"error","timestamp":"2019-05-20T05:32:49.411Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:33:18.820Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:33:18.879Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:33:52.153Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:33:52.224Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:43:37.449Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:43:37.502Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:45:26.681Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:45:26.723Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:45:43.515Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:45:43.577Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:45:58.345Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:45:58.384Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:46:43.232Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:46:43.267Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:47:17.739Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:47:17.779Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:48:19.243Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:48:19.286Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:48:57.180Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:48:57.239Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T05:49:06.728Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T05:49:06.789Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:08:08.878Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:08:09.223Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:09:57.085Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:09:57.135Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:11:15.053Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:11:15.115Z"}
+{"message":"s.setHours(...).toISOString is not a function","stack":"TypeError: s.setHours(...).toISOString is not a function\n    at filters (/home/javid/trigma/apis-code/controllers/car.js:308:55)\n    at controller.post (/home/javid/trigma/apis-code/controllers/car.js:157:21)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at /home/javid/trigma/apis-code/interceptors/validate.js:9:9\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at Route.dispatch (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:112:3)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at /home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:281:22\n    at Function.process_params (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:335:12)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:275:10)\n    at Function.handle (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:174:3)","level":"error","timestamp":"2019-05-20T06:11:21.278Z"}
+{"message":"s.setHours(...).toISOString is not a function","stack":"TypeError: s.setHours(...).toISOString is not a function\n    at filters (/home/javid/trigma/apis-code/controllers/car.js:308:55)\n    at controller.post (/home/javid/trigma/apis-code/controllers/car.js:157:21)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at /home/javid/trigma/apis-code/interceptors/validate.js:9:9\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at Route.dispatch (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:112:3)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at /home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:281:22\n    at Function.process_params (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:335:12)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:275:10)\n    at Function.handle (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:174:3)","level":"error","timestamp":"2019-05-20T06:11:21.292Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:12:49.840Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:12:49.910Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:13:21.562Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:13:21.615Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:15:46.203Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:15:46.251Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:31:04.748Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:31:04.790Z"}
+{"message":"(intermediate value).setHours(...).toUTCString is not a function","stack":"TypeError: (intermediate value).setHours(...).toUTCString is not a function\n    at filters (/home/javid/trigma/apis-code/controllers/car.js:306:119)\n    at controller.post (/home/javid/trigma/apis-code/controllers/car.js:157:21)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at /home/javid/trigma/apis-code/interceptors/validate.js:9:9\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at Route.dispatch (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:112:3)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at /home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:281:22\n    at Function.process_params (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:335:12)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:275:10)\n    at Function.handle (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:174:3)","level":"error","timestamp":"2019-05-20T06:32:10.983Z"}
+{"message":"(intermediate value).setHours(...).toUTCString is not a function","stack":"TypeError: (intermediate value).setHours(...).toUTCString is not a function\n    at filters (/home/javid/trigma/apis-code/controllers/car.js:306:119)\n    at controller.post (/home/javid/trigma/apis-code/controllers/car.js:157:21)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at /home/javid/trigma/apis-code/interceptors/validate.js:9:9\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at Route.dispatch (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:112:3)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at /home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:281:22\n    at Function.process_params (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:335:12)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:275:10)\n    at Function.handle (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:174:3)","level":"error","timestamp":"2019-05-20T06:32:11.016Z"}
+{"message":"(intermediate value).setHours(...).toUTCString is not a function","stack":"TypeError: (intermediate value).setHours(...).toUTCString is not a function\n    at filters (/home/javid/trigma/apis-code/controllers/car.js:306:119)\n    at controller.post (/home/javid/trigma/apis-code/controllers/car.js:157:21)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at /home/javid/trigma/apis-code/interceptors/validate.js:9:9\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at Route.dispatch (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:112:3)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at /home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:281:22\n    at Function.process_params (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:335:12)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:275:10)\n    at Function.handle (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:174:3)","level":"error","timestamp":"2019-05-20T06:32:15.405Z"}
+{"message":"(intermediate value).setHours(...).toUTCString is not a function","stack":"TypeError: (intermediate value).setHours(...).toUTCString is not a function\n    at filters (/home/javid/trigma/apis-code/controllers/car.js:306:119)\n    at controller.post (/home/javid/trigma/apis-code/controllers/car.js:157:21)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at /home/javid/trigma/apis-code/interceptors/validate.js:9:9\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:137:13)\n    at Route.dispatch (/home/javid/trigma/apis-code/node_modules/express/lib/router/route.js:112:3)\n    at newFn (/home/javid/trigma/apis-code/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/home/javid/trigma/apis-code/node_modules/express/lib/router/layer.js:95:5)\n    at /home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:281:22\n    at Function.process_params (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:335:12)\n    at next (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:275:10)\n    at Function.handle (/home/javid/trigma/apis-code/node_modules/express/lib/router/index.js:174:3)","level":"error","timestamp":"2019-05-20T06:32:15.474Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:33:41.524Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:33:41.563Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:34:14.501Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:34:14.537Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:35:38.869Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:35:38.940Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:38:25.258Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:38:25.297Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:39:42.250Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:39:42.298Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:41:20.242Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:41:20.288Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:42:57.926Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:42:57.971Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:44:36.795Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:44:36.838Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:45:38.778Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:45:38.821Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:49:01.637Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:49:01.681Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:49:07.104Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:49:07.143Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:50:43.988Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:50:44.034Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:51:20.306Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:51:20.346Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:51:48.520Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:51:48.554Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:52:21.006Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:52:21.054Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T06:52:47.644Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T06:52:47.690Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T09:25:16.884Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-20T09:25:17.014Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-20T12:56:36.830Z"}
+{"message":"read ECONNRESET","stack":"Error: read ECONNRESET\n    at TCP.onStreamRead (internal/stream_base_commons.js:167:27)","name":"MongoNetworkError","errorLabels":["TransientTransactionError"],"level":"error","timestamp":"2019-05-20T12:56:37.722Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-21T03:34:56.105Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-21T03:34:56.151Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-21T09:15:08.552Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-21T09:15:08.801Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-21T12:56:12.514Z"}
+{"message":"read ECONNRESET","stack":"Error: read ECONNRESET\n    at TCP.onStreamRead (internal/stream_base_commons.js:167:27)","name":"MongoNetworkError","errorLabels":["TransientTransactionError"],"level":"error","timestamp":"2019-05-21T12:56:16.857Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-22T09:53:47.021Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-22T09:53:47.083Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-22T10:00:33.861Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-22T10:00:33.932Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-22T10:05:58.101Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-22T10:05:58.145Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-22T10:11:05.775Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-22T10:11:05.829Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-22T10:13:14.170Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-22T10:13:14.215Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-22T10:13:22.389Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-22T10:13:22.442Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-22T10:13:46.442Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-22T10:13:51.485Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-05-22T12:59:32.187Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-05-22T12:59:32.226Z"}

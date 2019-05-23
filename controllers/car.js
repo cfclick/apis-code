@@ -13,7 +13,7 @@ const {
     validateDealerCarListing,
     validateCarDetail
 } = require('../models/car');
-const {Bid}  = require('../models/bid');
+const { Bid } = require('../models/bid');
 const {
     Seller
 } = require('../models/seller');
@@ -175,10 +175,11 @@ controller.post('/listingCarsOnDatable', [validate(validateCarListing)], async (
     let totalPages = totalRecordsAfterFilter / req.body.size;
     //let start = (req.body.pageNumber<=1)? 0 : (req.body.pageNumber-1) * req.body.size;
     let start = req.body.pageNumber * req.body.size;
+    console.log('the condition is',condition);
     let records = await Car.aggregate([
         {
             $match: condition
-            
+
         },
         {
             $lookup: {
@@ -196,7 +197,7 @@ controller.post('/listingCarsOnDatable', [validate(validateCarListing)], async (
             }
         },
         {
-           $sort:sortCondition
+            $sort: sortCondition
         },
         {
             $skip: parseInt(start)
@@ -204,7 +205,7 @@ controller.post('/listingCarsOnDatable', [validate(validateCarListing)], async (
         {
             $limit: parseInt(req.body.size)
         },
-       
+
     ])
 
     return res.status(def.API_STATUS.SUCCESS.OK).send({ records: records, count: totalRecordsAfterFilter, filteredRecords: totalRecords });
@@ -249,11 +250,49 @@ controller.post('/listingDealersCars', [validate(validateDealerCarListing)], asy
     return res.status(def.API_STATUS.SUCCESS.OK).send({ records: records, count: totalRecordsAfterFilter, filteredRecords: totalRecords });
 });
 
+/**=====================Fetch All Car Bids ============================= */
+controller.post('/getCarBids', async (req, res) => {
+    //----fetch all the bids corsponding to car Id----
 
-controller.post('/getCarBids',async (req,res)=>{
-    let bids = await Bid.find({car_id:req.body.carId});
+	let body = req.body;
+
+	let condition = {
+		"car_id": mongoose.Types.ObjectId(req.body.car_id)
+		// , "bid_acceptance": 'accepted'
+	};
+   let sortCondition = {};
+   //if filters contains the 'trim' filter
+	sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort     
+
+	if (body.search && isNaN(body.search)) 
+		condition['$or'] = [{ fee_status: { $regex: req.body.search, $options: 'i' } },]
     
-    res.status(def.API_STATUS.SUCCESS.OK).send({records:bids})
+    if (body.search && !isNaN(body.search)) 
+		condition['price'] = body.search
+	//if filters contains the 'dates' filter
+	if (_.has(req.body.filters, ['dates']))
+	condition['$or']= [{ bid_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) }}]
+
+	let totalRecords = await Bid.count(condition);//count total records 
+
+	const start = body.pageNumber * body.size;//calculate how many records need to be skipped
+   //fetch all the bids recrods 
+    let bids = await Bid.find(condition).populate({
+        path: "dealer_id",
+        model: "Dealer",
+        select: "name",
+    }).populate({
+        path: "car_id",
+        model: "Car",
+        select: "seller_id",
+        // populate: {
+        //     path: 'seller_id',
+        //     model: 'Seller',
+        //     select: 'name'
+        // }
+    }).sort(sortCondition).skip(start).limit(body.size);;
+
+    res.status(def.API_STATUS.SUCCESS.OK).send({ records: bids ,count:totalRecords})
 })
 
 function filters(req, condition) {
@@ -263,8 +302,14 @@ function filters(req, condition) {
         condition['vehicle_ownership.vehicle_pay_off'] = { $gte: (req.body.filters.price_range[0]), $lte: (req.body.filters.price_range[1]) }
 
     //if filters contains the 'dates' filter
-    if (_.has(req.body.filters, ['dates']))
-        condition['created_at'] = { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) }
+    if (_.has(req.body.filters, ['dates'])){
+        let start = new Date(req.body.filters.dates['transformedStartDate']);
+        start.setUTCHours(0,0,0,0);
+        let end = new Date(req.body.filters.dates['transformedEndDate'])
+        end.setUTCHours(23,59,59,999);
+        condition['created_at'] = { $gte: start, $lte: end }
+
+    }
 
     //if filters contains the 'years' filter
     if (_.has(req.body.filters, ['year_range']))

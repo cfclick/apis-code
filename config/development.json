@@ -5,8 +5,8 @@
     "webEndPoint": "http://54.245.128.14:4200",
     "fromEmail":"sandeep.kumar@trigma.in",
     "aws":{
-        "accessKey":"",
-        "secretKey":"",
+        "accessKey":"AKIAUGU7PKGK5DJHMALW",
+        "secretKey":"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",
         "bucket": "topautobid-dev",
         "region": "us-west-2"
     },
