@@ -38,15 +38,15 @@ const fileFilter = (req, file, cb) => {
 			  }
 			  else {
 				  console.log("Unexpected outcome for number o pages: '" + pages + "'");
-				  cb(new Error('Invalid file, only JPG, JPEG ,PNG and PDF is allowed!'), false);
+				  cb(new Error('The file is corrupted. Kindly choose other file.'), false);
 			  }
 			}
 			catch(err) {
 			   console.log("ERROR while handling buffer of pdfBase64 and/or trying to parse PDF: " + err);
-			   cb(new Error('Invalid file, only JPG, JPEG ,PNG and PDF is allowed!'), false);
+			   cb(new Error('The file is corrupted. Kindly choose other file.'), false);
 			}
 		}else{
-			cb(new Error('Invalid file, only JPG, JPEG ,PNG and PDF is allowed!'), false);
+			cb(new Error('The file is corrupted. Kindly choose other file.'), false);
 		}
   } else {
     cb(new Error('Invalid file type, only JPG, JPEG ,PNG and PDF is allowed!'), false);

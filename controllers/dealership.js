@@ -15,6 +15,15 @@ const {
 const express = require('express');
 const controller = express.Router();
 
+/* ====================== Generate unique document id before save =======================================*/
+controller.get('/generateID', async (req, res, next) => {
+  let dealership = new Dealership();
+  console.log('id',dealership._id);
+  if (!dealership) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Ooops, could not save seller information!');
+
+  res.status(def.API_STATUS.SUCCESS.OK).send(dealership._id);
+})
+
 /* ====================== Dealership list on datatbles =======================================*/
 controller.post('/listingDealershipOnDatable', [validate(validateListing)], async (req, res, next) => {
 

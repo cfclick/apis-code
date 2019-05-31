@@ -51,7 +51,7 @@ controller.post('/newCar', [validate(validateCar)], async (req, res, next) => {
     //req.body.ref = nextRef; //modify req object by adding new ref
 
     //preparing new car object 
-    car = new Car(_.pick(req.body, ['vin_number', 'vehicle_year', 'seller_id', 'basic_info', 'vehicle_images', 'vehicle_has_second_key', 'is_vehicle_aftermarket', 'vehicle_aftermarket', 'vehicle_ownership', 'vehicle_comments', 'vehicle_condition', 'willing_to_drive', 'vehicle_to_be_picked_up', 'willing_to_drive_how_many_miles', 'vehicle_finance_details', 'created_at', 'updated_at']));
+    car = new Car(_.pick(req.body, ['vin_number', 'vehicle_year', 'seller_id', 'basic_info', 'vehicle_images', 'vehicle_has_second_key', '_id','is_vehicle_aftermarket', 'vehicle_aftermarket', 'vehicle_ownership', 'vehicle_comments', 'vehicle_condition', 'willing_to_drive', 'vehicle_to_be_picked_up', 'willing_to_drive_how_many_miles', 'vehicle_finance_details', 'created_at', 'updated_at']));
 
     //save new car
     car.save(async (err, car) => {
@@ -76,6 +76,25 @@ controller.post('/newCar', [validate(validateCar)], async (req, res, next) => {
         //sending response
         res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(car, ['_id']));
     });
+
+
+})
+
+controller.post('/editCar', [validate(validateCar)], async (req, res, next) => {
+   
+     //checking car exist
+    let car = await Car.findOne({ "_id": req.body._id }, { _id: 1 });
+
+    if (!car) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('No recrod found.');
+ 
+    Car.findOneAndUpdate({ _id: req.body._id },{ $set:req.body },{ new: true },	function(err, doc){
+      
+		if(err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Ooops, could not save car information!');
+
+		res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(doc, ['_id']));
+
+    });
+    
 
 
 })
@@ -223,6 +242,14 @@ controller.post('/listingDealersCars', [validate(validateDealerCarListing)], asy
 
     //define the condition to fetch records (All, active, sold, archived)
     let condition = { "type": req.body.type };
+    if (req.body.type == 'bids') {
+        let carIds = await Bid.distinct('car_id');// select all those car ids those have bids
+        condition = { '_id': { $in: carIds } };
+    } else if (req.body.type == 'active') {
+
+        let carIds = await Bid.distinct('car_id');// select all those car ids those have bids
+        condition = { '_id': { $nin: carIds } };//fetck only those cars doest have bids
+    }
 
     if (!_.isEmpty(req.body.filters, true)) {
         condition = filters(req, condition)
@@ -240,7 +267,7 @@ controller.post('/listingDealersCars', [validate(validateDealerCarListing)], asy
     let totalRecordsAfterFilter = await Car.find(condition).countDocuments()
 
     // calculating the car's count
-    let totalRecords = await Car.find().countDocuments()
+    let totalRecords = await Car.find(condition).countDocuments()
 
 
     //calculating the limit and skip attributes to paginate records
@@ -255,7 +282,6 @@ controller.post('/listingDealersCars', [validate(validateDealerCarListing)], asy
 
     return res.status(def.API_STATUS.SUCCESS.OK).send({ records: records, count: totalRecordsAfterFilter, filteredRecords: totalRecords });
 });
-
 /* ====================== get car bids  =======================================*/
 controller.post('/getCarBids',async (req,res)=>{
     let bids = await Bid.find({car_id:req.body.carId});
