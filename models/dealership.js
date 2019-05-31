@@ -256,8 +256,8 @@ const listingJoiSchema = {
     search: Joi.string().allow('').optional().trim(),     
     sortDirection:Joi.string().trim().required(),
     sortProperty:Joi.string().trim().required(),
-    pageNumber:Joi.number().min(0).required(), 
-    size :Joi.number().min(6).max(96).positive().required(),
+    pageNumber:Joi.number().min(0).required(),    
+    size :Joi.number().valid(6,12,24,48,96).required(),
 }
 
 // validating remove 

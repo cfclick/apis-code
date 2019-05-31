@@ -3,12 +3,15 @@
     "debug": "true",
     "port": "3000",
     "webEndPoint": "http://54.245.128.14:4200",
-    "fromEmail":"sandeep.kumar@trigma.in",
+    "fromEmail":"prashant.ojha@trigma.com",
     "aws":{
         "accessKey":"AKIAUGU7PKGK5DJHMALW",
         "secretKey":"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",
         "bucket": "topautobid-dev",
         "region": "us-west-2"
+    },
+    "sandgrid":{
+       "apiKey":"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"
     },
     "db": {
         "islocal": "false",

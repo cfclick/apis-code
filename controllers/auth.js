@@ -22,7 +22,7 @@ const {
 const validate = require('../interceptors/validate');
 const {
     sendMail
-} = require('../helpers/mail');
+} = require('../helpers/emailService');
 
 const express = require('express');
 const controller = express.Router();
@@ -55,7 +55,7 @@ controller.post('/seller/login', validate(validateLogin), async (req, res) => {
     const token = seller.generateAuthToken();
     res.setHeader('x-auth-token', token);
     res.header('Access-Control-Expose-Headers', 'x-auth-token')
-    return res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(seller, ['_id', 'name', 'emails', 'phones', 'profile_pic']));
+    return res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(seller, ['_id', 'name', 'emails', 'is_verified', 'phones', 'profile_pic','is_multifactor_authorized']));
 
 });
 
@@ -83,7 +83,7 @@ controller.post('/seller/signup', validate(validateSeller), async (req, res) => 
 
 
     //await seller.save();
-    seller.save(function (err, seller) {
+    seller.save(async function (err, seller) {
         console.log('the erroris ', err)
         if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Ooops, could not save dealer information!.');
 
@@ -91,15 +91,16 @@ controller.post('/seller/signup', validate(validateSeller), async (req, res) => 
         //send mail	
         seller['cipher'] = req.body.password;
         console.log('the token is ', generateAuthToken(seller));
-
+        const token = generateAuthToken(seller);
         const name = seller.name.prefix + ' ' + seller.name.first_name
-        const webEndPoint = config.get('webEndPoint') + '/seller/login';
-        const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
+        const webEndPoint = config.get('webEndPoint') + '/seller/verify-email/' + token;
+        const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
         sendMail({
             to: req.body.emails[0].email,
-            subject: 'Successfull Signup',
+            subject: "Seller's Account Verification",
             message: message,
-        })
+        });
+        await Seller.findOneAndUpdate({ _id: seller._id }, { $set: { token: token } }, { new: true })
 
         res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(seller, ['_id']));
     });
@@ -108,7 +109,7 @@ controller.post('/seller/signup', validate(validateSeller), async (req, res) => 
 //function to generate jwt token
 function generateAuthToken(user) {
     // PRIVATE and PUBLIC key
-
+    console.log('the user is ', user.cipher)
     let privateKEY = fs.readFileSync('./config/keys/private.key');
 
     const i = 'topautobid'; // Issuer 
@@ -134,6 +135,45 @@ function generateAuthToken(user) {
 }
 
 
+
+
+
+/**
+ * seller send verification link  using token
+ */
+controller.post('/seller/sendVerificationLink', async (req, res) => {
+
+    let user = await Seller.findOne({ _id: req.body.userId });
+
+    let privateKEY = fs.readFileSync('./config/keys/private.key');
+    let decoded = jwt.decode(user.token, privateKEY);
+    console.log('the email is', decoded);
+
+    if (!decoded || !decoded.username) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('your token is invalid.');
+    let password = decoded.cipher;
+
+    //send mail
+    //    user = user.toObject();
+    user['cipher'] = password;
+    console.log('the token is ', generateAuthToken(user));
+    const token = generateAuthToken(user);
+    const name = user.name.prefix + ' ' + user.name.first_name
+    const webEndPoint = config.get('webEndPoint') + '/seller/verify-email/' + token;
+    const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
+    sendMail({
+        to: user.emails[0].email,
+        subject: "Seller's Account Verification",
+        message: message,
+    });
+    await Seller.findOneAndUpdate({ _id: user._id }, { $set: { token: token } }, { new: true })
+
+    res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(user, ['_id']));
+
+
+});
+
+
+
 /**
  * seller verify user using token
  */
@@ -147,8 +187,8 @@ controller.post('/seller/verifyEmail', async (req, res) => {
 
     let seller = await Seller.findOne({ 'username': decoded.username });
     // console.log('the seller is', seller);
-     if(!seller)
-     return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('seller not found.');
+    if (!seller)
+        return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('seller not found.');
     //check if the user is already verified
     seller = seller.toObject();
     seller['cipher'] = password;
@@ -178,7 +218,7 @@ controller.post('/seller/setMFA', async (req, res) => {
     Seller.findOneAndUpdate({ _id: req.body.userId }, { $set: { is_multifactor_authorized: true } }, { new: true }, function (err, doc) {
 
         if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Ooops, could not update the seller information!');
-        res.status(def.API_STATUS.SUCCESS.OK).send({sellerId:doc._id});
+        res.status(def.API_STATUS.SUCCESS.OK).send({ sellerId: doc._id });
 
     });
 })
@@ -213,14 +253,13 @@ controller.post('/dealer/login', validate(validateLogin), async (req, res) => {
 
     res.setHeader('x-auth-token', token);
     res.header('Access-Control-Expose-Headers', 'x-auth-token')
-    return res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(dealer, ['_id', 'name', 'emails', 'phones', 'profile_pic']));
+    return res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(dealer, ['_id', 'name', 'emails','is_verified', 'phones', 'profile_pic','is_multifactor_authorized']));
 });
 
 
 
 
-controller.post(
-    '/dealer/signup', validate(validateDealer), async (req, res) => {
+controller.post('/dealer/signup', validate(validateDealer), async (req, res) => {
 
 
     //fetching data to check unique email
@@ -239,25 +278,26 @@ controller.post(
 
     //save dealer 
     dealer = new Dealer(_.pick(req.body, ['name', 'username', 'emails', 'phones', 'password', 'social_login', 'state', 'city', 'zip', 'dealerships', 'availabilitydate', 'time', 'timezone', 'language', 'active', 'verified', 'created_at', 'updated_at']));
-
+    console.log('the dealer is ',dealer)
     //await dealer.save();
-    dealer.save(function (err, dealer) {
+    dealer.save(async function (err, dealer) {
         if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err);
 
 
-           //send mail	
-          //send mail	
-          dealer['cipher'] = req.body.password;
-          console.log('the token is ', generateAuthToken(dealer));
+        //send mail	
+        //send mail	
+        dealer['cipher'] = req.body.password;
+        const token = generateAuthToken(dealer);
         const name = dealer.name.prefix + ' ' + dealer.name.first_name
-        const webEndPoint = config.get('webEndPoint') + '/dealer/login';
-        const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a dealer.<p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
+        const webEndPoint = config.get('webEndPoint') + '/dealer/verify-email/' + token;
+        const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a dealer.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
         sendMail({
             to: req.body.emails[0].email,
-            subject: 'Successfull Signup',
+            subject: "Dealer's Account Verification",
             message: message,
         })
 
+        await Dealer.findOneAndUpdate({ _id: dealer._id }, { $set: { token: token } }, { new: true })
         res.status(def.API_STATUS.SUCCESS.OK).send(true);
     });
 
@@ -275,13 +315,13 @@ controller.post('/dealer/verifyEmail', async (req, res) => {
     let password = decoded.cipher;
 
     let dealer = await Dealer.findOne({ 'username': decoded.username });
-    if(!dealer)
-    return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('dealer not found.');
+    if (!dealer)
+        return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('dealer not found.');
     //check if the user is already verified
     dealer = dealer.toObject();
     dealer['cipher'] = password;
     if (dealer.is_verified)
-        return res.status(def.API_STATUS.SUCCESS.OK).send({ alreadyVerified: true, dealer: _.pick(dealer,['name','username','emails','phones','cipher'])});
+        return res.status(def.API_STATUS.SUCCESS.OK).send({ alreadyVerified: true, dealer: _.pick(dealer, ['_id','name', 'username', 'emails', 'phones', 'cipher']) });
 
     //if the user is not verified
     Dealer.findOneAndUpdate({ _id: dealer._id }, { $set: { is_verified: true } }, { new: true }, function (err, doc) {
@@ -289,9 +329,44 @@ controller.post('/dealer/verifyEmail', async (req, res) => {
         if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Ooops, could not update the dealer information!');
         doc = doc.toObject();
         doc['cipher'] = password;// send back passowod---
-        res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(doc,['name','username','emails','phones','cipher']));
+        res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(doc, ['_id','name', 'username', 'emails', 'phones', 'cipher']));
 
     });
+
+
+});
+
+
+/**
+ * seller send verification link  using token
+ */
+controller.post('/dealer/sendVerificationLink', async (req, res) => {
+
+    let user = await Dealer.findOne({ _id: req.body.userId });
+
+    let privateKEY = fs.readFileSync('./config/keys/private.key');
+    let decoded = jwt.decode(user.token, privateKEY);
+    console.log('the email is', decoded);
+
+    if (!decoded || !decoded.username) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('your token is invalid.');
+    let password = decoded.cipher;
+
+    //send mail
+    //    user = user.toObject();
+    user['cipher'] = password;
+    console.log('the token is ', generateAuthToken(user));
+    const token = generateAuthToken(user);
+    const name = user.name.prefix + ' ' + user.name.first_name
+    const webEndPoint = config.get('webEndPoint') + '/dealer/verify-email/' + token;
+    const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
+    sendMail({
+        to: user.emails[0].email,
+        subject: "Dealer's Account Verification",
+        message: message,
+    });
+    await Dealer.findOneAndUpdate({ _id: user._id }, { $set: { token: token } }, { new: true })
+
+    res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(user, ['_id']));
 
 
 });
@@ -306,8 +381,8 @@ controller.post('/dealer/setMFA', async (req, res) => {
     Dealer.findOneAndUpdate({ _id: req.body.userId }, { $set: { is_multifactor_authorized: true } }, { new: true }, function (err, doc) {
 
         if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Ooops, could not update the seller information!');
-     
-        res.status(def.API_STATUS.SUCCESS.OK).send({sellerId:doc._id});
+
+        res.status(def.API_STATUS.SUCCESS.OK).send({ sellerId: doc._id });
 
     });
 })

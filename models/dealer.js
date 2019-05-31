@@ -115,7 +115,7 @@ dealerSchema.pre('save', async function(next) {
     }
 
     if(this.isModified('emails')) {  
-        this.username = this.generateUsername(this.emails)                                                                  
+        // this.username = this.generateUsername(this.emails)                                                                  
     }
    
     if (!this.created_at){

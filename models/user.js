@@ -74,7 +74,7 @@ const userSchema = new mongoose.Schema({
     ],   
     username: { 
         type: String,        
-        unique: true,
+        // unique: true,
         trim: true
     },
     password: { 
@@ -117,6 +117,10 @@ const userSchema = new mongoose.Schema({
     is_multifactor_authorized:{
         type:Boolean,
         default:false
+    },
+    token:{
+        type:String,
+        trim:true
     }
     
 });

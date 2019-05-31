@@ -170,7 +170,7 @@ controller.post('/vehicleImageUpload', function (req, res) {
 
 //updatePassword dealer
 controller.post('/updatePassword', async (req, res, next) => {
-	console.log('email', req.body.email)
+
 	//fetching the user data
 	const dealer = await Dealer.findOne({ "emails.email": req.body.email }, { emails: 1, _id: 0, name: 1 });
 
@@ -181,7 +181,7 @@ controller.post('/updatePassword', async (req, res, next) => {
 	const salt = await bcrypt.genSalt(10);
 	const password = await bcrypt.hash(req.body.password, salt);
 
-	console.log('password', password)
+
 	Dealer.findOneAndUpdate({ "emails.email": req.body.email }, { $set: { password: password } }, { new: true }, function (err, doc) {
 
 		if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Could not save updated password.');
@@ -240,51 +240,47 @@ controller.post('/createBid', validate(validateBid), async (req, res) => {
 	})
 
 })
+
 //get all purchases
 controller.post('/getPurchaseList', async (req, res) => {
 	let body = req.body;
 
-	let condition = {
-		"dealer_id": mongoose.Types.ObjectId(req.body.dealer_id)
-		// , "bid_acceptance": 'accepted'
-	};
-	let sortCondition = {};
-	//if filters contains the 'trim' filter
+	let condition = { "dealer_id": mongoose.Types.ObjectId(req.body.dealer_id) };
+   let sortCondition = {};
+
+   //if filters contains the 'sortDirection,sortProperty' filter
 	sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort     
 
-	if (body.search && isNaN(body.search)) {
-		condition['$or'] = [
-			{ fee_status: { $regex: req.body.search, $options: 'i' } },
-		]
-	}
-	if (body.search && !isNaN(body.search)) {
-
+	if (body.search && isNaN(body.search)) 
+		condition['$or'] = [{ fee_status: { $regex: req.body.search, $options: 'i' } }]
+	
+	if (body.search && !isNaN(body.search)) 
 		condition['price'] = body.search
-	}
+	
 	//if filters contains the 'dates' filter
 	if (_.has(req.body.filters, ['dates']))
-
-		condition['$or'] = [
-			{ bid_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) } },
-			{ bid_acceptance_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) } },
+		condition['$or']= [
+			{ bid_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) }},
+			{ bid_acceptance_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) }},
 		]
 
-	console.log('the flters are ', condition)
-	let totalRecords = await Bid.count(condition);
 
-	const start = body.pageNumber * body.size;
-	// const end = Math.min((start + body.size), totalRecords);
-	console.log('the start is ', start)
+	let totalRecords = await Bid.count(condition);//total bids
+
+	const start = body.pageNumber * body.size;//calculating the skipping records
+
 	let records = await Bid.find(condition).populate({
-		path: "dealer_id",
-		model: "Dealer",
-		select: "name"
-	}).populate({
-		path: "car_id",
-		model: "Car",
-		select: "ref"
-	})
-		.sort(sortCondition).skip(start).limit(body.size);
+			path: "dealer_id",
+			model: "Dealer",
+			select: "name"
+		}).populate({
+			path: "car_id",
+			model: "Car",
+			select: "ref"
+		})
+		.sort(sortCondition)
+		.skip(start)
+		.limit(body.size);
 	return res.status(def.API_STATUS.SUCCESS.OK).send({ records: records, count: totalRecords });
 })
 

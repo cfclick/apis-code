@@ -44,10 +44,6 @@ const bidSchema = new mongoose.Schema({
         enum: ['unpaid', 'paid'],
         default: 'unpaid'
 
-    },
-    updated_by: {
-        type: Schema.Types.ObjectId,
-        ref: 'Seller'
     }
 
 });
@@ -68,12 +64,7 @@ bidSchema.post('save', async function (doc, next) {
 const joiBidSchema = {
     car_id: Joi.objectId().required(),
     dealer_id: Joi.objectId().required(),
-    price: Joi.number().required(),
-    bid_date: Joi.date(),
-    bid_acceptance: Joi.string().trim().required(),
-    bid_acceptance_date: Joi.date(),
-    fee_status: Joi.string().trim(),
-    updated_by: Joi.objectId()
+    price: Joi.number().min(1).positive().required(),   
 }
 
 //valid the bid using joi schema

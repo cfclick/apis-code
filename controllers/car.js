@@ -11,12 +11,19 @@ const {
     validateRemoveCar,
     validateCarListing,
     validateDealerCarListing,
-    validateCarDetail
+    validateCarDetail,
+    validateContactRequest,
+    validateReviewBySeller,
+    validateReviewByDealer
 } = require('../models/car');
 const { Bid } = require('../models/bid');
 const {
     Seller
 } = require('../models/seller');
+
+const {
+    Dealer
+} = require('../models/dealer');
 
 
 const {
@@ -44,7 +51,7 @@ controller.post('/newCar', [validate(validateCar)], async (req, res, next) => {
     //req.body.ref = nextRef; //modify req object by adding new ref
 
     //preparing new car object 
-    car = new Car(_.pick(req.body, ['vin_number', 'vehicle_year', 'seller_id', 'basic_info', 'vehicle_images', 'vehicle_has_second_key', 'is_vehicle_aftermarket', 'vehicle_aftermarket', 'vehicle_ownership', 'vehicle_comments', 'vehicle_condition', 'willing_to_drive', 'vehicle_to_be_picked_up', 'willing_to_drive_how_many_miles', 'vehicle_offer_in_hands_price', 'vehicle_proof_image', 'created_at', 'updated_at']));
+    car = new Car(_.pick(req.body, ['vin_number', 'vehicle_year', 'seller_id', 'basic_info', 'vehicle_images', 'vehicle_has_second_key', 'is_vehicle_aftermarket', 'vehicle_aftermarket', 'vehicle_ownership', 'vehicle_comments', 'vehicle_condition', 'willing_to_drive', 'vehicle_to_be_picked_up', 'willing_to_drive_how_many_miles', 'vehicle_finance_details', 'created_at', 'updated_at']));
 
     //save new car
     car.save(async (err, car) => {
@@ -175,7 +182,7 @@ controller.post('/listingCarsOnDatable', [validate(validateCarListing)], async (
     let totalPages = totalRecordsAfterFilter / req.body.size;
     //let start = (req.body.pageNumber<=1)? 0 : (req.body.pageNumber-1) * req.body.size;
     let start = req.body.pageNumber * req.body.size;
-    console.log('the condition is',condition);
+    console.log('the condition is', condition);
     let records = await Car.aggregate([
         {
             $match: condition
@@ -217,6 +224,14 @@ controller.post('/listingDealersCars', [validate(validateDealerCarListing)], asy
 
     //define the condition to fetch records (All, active, sold, archived)
     let condition = { "type": req.body.type };
+    if (req.body.type == 'bids') {
+        let carIds = await Bid.distinct('car_id');// select all those car ids those have bids
+        condition = { '_id': { $in: carIds } };
+    } else if (req.body.type == 'active') {
+
+        let carIds = await Bid.distinct('car_id');// select all those car ids those have bids
+        condition = { '_id': { $nin: carIds } };//fetck only those cars doest have bids
+    }
 
     if (!_.isEmpty(req.body.filters, true)) {
         condition = filters(req, condition)
@@ -234,7 +249,7 @@ controller.post('/listingDealersCars', [validate(validateDealerCarListing)], asy
     let totalRecordsAfterFilter = await Car.find(condition).countDocuments()
 
     // calculating the car's count
-    let totalRecords = await Car.find().countDocuments()
+    let totalRecords = await Car.find(condition).countDocuments()
 
 
     //calculating the limit and skip attributes to paginate records
@@ -254,29 +269,29 @@ controller.post('/listingDealersCars', [validate(validateDealerCarListing)], asy
 controller.post('/getCarBids', async (req, res) => {
     //----fetch all the bids corsponding to car Id----
 
-	let body = req.body;
+    let body = req.body;
 
-	let condition = {
-		"car_id": mongoose.Types.ObjectId(req.body.car_id)
-		// , "bid_acceptance": 'accepted'
-	};
-   let sortCondition = {};
-   //if filters contains the 'trim' filter
-	sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort     
+    let condition = {
+        "car_id": mongoose.Types.ObjectId(req.body.car_id)
+        // , "bid_acceptance": 'accepted'
+    };
+    let sortCondition = {};
+    //if filters contains the 'trim' filter
+    sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort     
 
-	if (body.search && isNaN(body.search)) 
-		condition['$or'] = [{ fee_status: { $regex: req.body.search, $options: 'i' } },]
-    
-    if (body.search && !isNaN(body.search)) 
-		condition['price'] = body.search
-	//if filters contains the 'dates' filter
-	if (_.has(req.body.filters, ['dates']))
-	condition['$or']= [{ bid_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) }}]
+    if (body.search && isNaN(body.search))
+        condition['$or'] = [{ fee_status: { $regex: req.body.search, $options: 'i' } },]
 
-	let totalRecords = await Bid.count(condition);//count total records 
+    if (body.search && !isNaN(body.search))
+        condition['price'] = body.search
+    //if filters contains the 'dates' filter
+    if (_.has(req.body.filters, ['dates']))
+        condition['$or'] = [{ bid_date: { $gte: (req.body.filters.dates['transformedStartDate']), $lte: (req.body.filters.dates['transformedEndDate']) } }]
 
-	const start = body.pageNumber * body.size;//calculate how many records need to be skipped
-   //fetch all the bids recrods 
+    let totalRecords = await Bid.count(condition);//count total records 
+
+    const start = body.pageNumber * body.size;//calculate how many records need to be skipped
+    //fetch all the bids recrods 
     let bids = await Bid.find(condition).populate({
         path: "dealer_id",
         model: "Dealer",
@@ -292,24 +307,187 @@ controller.post('/getCarBids', async (req, res) => {
         // }
     }).sort(sortCondition).skip(start).limit(body.size);;
 
-    res.status(def.API_STATUS.SUCCESS.OK).send({ records: bids ,count:totalRecords})
+    res.status(def.API_STATUS.SUCCESS.OK).send({ records: bids, count: totalRecords })
+})
+
+/* ====================== Dealer car list  =======================================*/
+controller.post('/contactRequest', [validate(validateContactRequest)], async (req, res, next) => {
+    const name = req.body.name;
+    const webEndPoint = config.get('webEndPoint') + '/seller/login';
+    const message = '<p style="line-height: 24px; margin-bottom:15px;">Hello Admin,</p><p style="line-height: 24px;margin-bottom:15px;">We got a new contact request to know more information about car. Customer details is mentioned below: <p style="line-height: 24px; margin-bottom:15px;">Name:' + req.body.name + '</p> <p style="line-height: 24px; margin-bottom:15px;">Email:' + req.body.email + '</p><p style="line-height: 24px; margin-bottom:15px;">Phone:' + req.body.country_code + ' ' + req.body.phone + '</p><p style="line-height: 24px; margin-bottom:15px;">Message:' + req.body.message + '</p><p style="line-height: 24px; margin-bottom:15px;">Contact on:' + req.body.preference + '</p><p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
+    console.log(message);
+    sendMail({
+        to: req.body.email,
+        subject: 'New Contact Request',
+        message: message,
+    })
+
+    //sending response
+    res.status(def.API_STATUS.SUCCESS.OK).send(true);
+})
+
+
+/* ====================== Rate & review by dealer =======================================*/
+controller.post('/ratingReviewByDealer', [validate(validateReviewByDealer)], async (req, res, next) => {
+
+    //fetching the user data
+    const dealer = await Dealer.findOne({ "_id": req.body.dealer_id }, { _id: 1 });
+    if (!dealer) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('No record found.');
+    let ratingReview = {
+        dealer_id: req.body.dealer_id,
+        rating: req.body.rating,
+        comment: req.body.comment,
+    }
+    Car.findOneAndUpdate({ _id: req.body._id }, { $set: { review_by_dealer: ratingReview } }, { new: true }, function (err, doc) {
+        console.log('error', err);
+        console.log('doc', doc);
+        if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err);
+
+        res.status(def.API_STATUS.SUCCESS.OK).send(doc);
+
+    });
+
+})
+
+
+/* ====================== Rate & review by seller =======================================*/
+controller.post('/getsellerRating', async (req, res, next) => {
+
+
+    let sortCondition = {}
+    sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort
+
+    let start = (req.body.pageNumber <= 1) ? 0 : (req.body.pageNumber - 1) * req.body.size;//no of docs to be skipped
+    //fetching the user data
+    // condition object
+    let condition = {
+        type: 'sold',
+        seller_id: mongoose.Types.ObjectId(req.body.seller_id)
+    };
+
+
+    if (req.body.search)
+        condition['$or'] = search(req);
+
+
+    if (_.has(req.body.filters, ['dates']))
+        condition = filters(req, condition)
+
+
+    let count = await Car.count(condition);//find the total no of sold cars
+
+
+    let soldCarDetails = await Car.aggregate([
+        {
+            $match: condition
+        },
+        {
+            $lookup: {
+                from: "car_bids",
+                let: { car_id: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$car_id", "$$car_id"] },
+                                    {
+                                        $eq: [
+                                            "$bid_acceptance", "accepted"]
+                                    }
+                                ]
+                            },
+
+                        },
+
+                    },
+                    {
+                        $project: {
+                            dealer_id: 1,
+                            updated_at: 1,
+                            bid_acceptance_date: 1
+                        }
+                    }
+                ],
+                as: "car_bids"
+            }
+            
+        },
+        {
+            $lookup: {
+                from: "dealers",
+                localField: "car_bids.dealer_id",
+                foreignField: "_id",
+                as: "dealer"
+            }
+        }
+        ,
+        {
+            $project: {
+                _id: 1,
+                vehicle_year: 1,
+                "basic_info.vehicle_make": 1,
+                "basic_info.vehicle_model": 1,
+                created_at: 1,
+                review_by_dealer: 1,
+                review_by_seller: 1,
+                "dealer.name": 1,
+                "car_bids.updated_at": 1,
+                "car_bids.bid_acceptance_date": 1,
+            }
+        },
+        {
+            $sort: sortCondition
+        },
+        {
+            $skip: parseInt(start)
+        },
+        {
+            $limit: parseInt(req.body.size)
+        },
+
+    ])
+
+    console.log('the rate and review are', soldCarDetails)
+    res.status(def.API_STATUS.SUCCESS.OK).send({ records: soldCarDetails, count: count });
+
+
+})
+
+
+/* ====================== Change car status =======================================*/
+controller.post('/changeCarStatus', async (req, res, next) => {
+
+    //fetching the user data
+    const car = await Car.findOne({ "_id": req.body.id }, { _id: 1 });
+    if (!car) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('No record found.');
+
+    Car.findOneAndUpdate({ _id: req.body.id }, { $set: { type: req.body.type } }, { new: true }, function (err, doc) {
+        if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err);
+
+        res.status(def.API_STATUS.SUCCESS.OK).send(doc);
+
+    });
+
 })
 
 function filters(req, condition) {
 
     //if filters contains the 'bid price' filter
     if (_.has(req.body.filters, ['price_range']))
-        condition['vehicle_ownership.vehicle_pay_off'] = { $gte: (req.body.filters.price_range[0]), $lte: (req.body.filters.price_range[1]) }
+        condition['vehicle_finance_details.vehicle_estimated_price'] = { $gte: (req.body.filters.price_range[0]), $lte: (req.body.filters.price_range[1]) }
 
     //if filters contains the 'dates' filter
-    if (_.has(req.body.filters, ['dates'])){
+    if (_.has(req.body.filters, ['dates'])) {
         let start = new Date(req.body.filters.dates['transformedStartDate']);
-        start.setUTCHours(0,0,0,0);
+        start.setUTCHours(0, 0, 0, 0);
         let end = new Date(req.body.filters.dates['transformedEndDate'])
-        end.setUTCHours(23,59,59,999);
+        end.setUTCHours(23, 59, 59, 999);
         condition['created_at'] = { $gte: start, $lte: end }
 
     }
+    // if (_.has(req.body.filters, ['dates']))
+    //    condition['created_at'] = { $gte: (new Date(req.body.filters.dates['transformedStartDate'])), $lte: (new Date(req.body.filters.dates['transformedEndDate'])) }
 
     //if filters contains the 'years' filter
     if (_.has(req.body.filters, ['year_range']))
@@ -357,6 +535,8 @@ function filters(req, condition) {
 
     return condition
 }
+
+
 
 function search(req) {
     //text search on listed columns

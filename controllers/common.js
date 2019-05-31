@@ -3,6 +3,10 @@ const def = require('../models/def/statuses');
 const _ = require('lodash'); //js utility lib
 const validate = require('../interceptors/validate');
 const upload = require('../helpers/upload');
+var hummus = require('hummus');
+var isBase64 = require('is-base64');
+
+
 
 const {
     State   
@@ -20,15 +24,9 @@ let conditionFilters = {}
 
 const aws = require('aws-sdk');
 aws.config.update({
-    // Your SECRET ACCESS KEY from AWS should go here,
-    // Never share it!
-    // Setup Env Variable, e.g: process.env.SECRET_ACCESS_KEY
-    secretAccessKey: config.get('aws.secretKey'),
-    // Not working key, Your ACCESS KEY ID from AWS should go here,
-    // Never share it!
-    // Setup Env Variable, e.g: process.env.ACCESS_KEY_ID
+    secretAccessKey: config.get('aws.secretKey'),  
     accessKeyId: config.get('aws.accessKey'),
-    region: config.get('aws.region'), // region of your bucket
+    region: config.get('aws.region')
 });
 const s3 = new aws.S3();
 
@@ -48,15 +46,45 @@ controller.get('/fetchStates',async(req,res,next)=>{
 */
 controller.post('/fetchVehicleStatisticsByYear',[validate(validateVehicleYear)], async(req,res,next)=>{
 
-	let condition = {};
-    //condition to fetch vehicle details by Year
-    condition['year'] = req.body.year    
+		let condition = {};
 
-    console.log('condition',condition);
-    let records = await Vehicle.findOne(condition)
-	// console.log(records);
+		//condition to fetch vehicle details by Year
+    condition['year'] = req.body.year      
+		let records = await Vehicle.findOne(condition)
+		
     return res.status(def.API_STATUS.SUCCESS.OK).send(records);	
 	
+})
+
+
+/**
+ * check PDF Corrupted 
+*/
+controller.post('/checkPDFCorrupted', function(req, res) {  
+	
+	let pdfBase64String = req.body.base64string;
+	if(isBase64(pdfBase64String)){
+		let bufferPdf;
+		try {
+		  bufferPdf = Buffer.from(pdfBase64String, 'base64');
+		  const pdfReader = hummus.createReader(new hummus.PDFRStreamForBuffer(bufferPdf));
+		  var pages = pdfReader.getPagesCount();
+		  if(pages > 0) {
+				console.log("Seems to be a valid PDF!");
+			  return res.status(def.API_STATUS.SUCCESS.OK).send(true);	
+		  }
+		  else {
+			  console.log("Unexpected outcome for number o pages: '" + pages + "'");
+			  return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(false);
+		  }
+		}
+		catch(err) {
+		   console.log("ERROR while handling buffer of pdfBase64 and/or trying to parse PDF: " + err);
+		   return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(false);
+		}
+	}else{
+		return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(false);
+	}		
 })
 
 /**
@@ -67,8 +95,6 @@ controller.post('/fetchVehicleStatisticsByMultipleyear',[validate(validateVehicl
 
     //condition to fetch vehicle details by Year
     conditionFilters['year'] = { $in : req.body.year } 
-
-    console.log('conditionFilters',conditionFilters);
     let records = await Vehicle.find(conditionFilters,{ "makes.name":1, "makes._id":1 })
    
     return res.status(def.API_STATUS.SUCCESS.OK).send(records);	
@@ -82,10 +108,8 @@ controller.post('/fetchVehicleStatisticsByMultipleyear',[validate(validateVehicl
 controller.post('/fetchVehicleStatisticsByMultiplemake', async(req,res,next)=>{
 
 
-    //condition to fetch vehicle details by Year
-    conditionFilters['makes.name'] = { $in : req.body.make } 
-
-    console.log('conditionFilters',conditionFilters);
+    //condition to fetch vehicle details by make
+    conditionFilters['makes.name'] = { $in : req.body.make }   
     let records = await Vehicle.find(conditionFilters,{ "makes.models.name":1, "makes.models._id":1 })
    
     return res.status(def.API_STATUS.SUCCESS.OK).send(records);	
@@ -98,10 +122,8 @@ controller.post('/fetchVehicleStatisticsByMultiplemake', async(req,res,next)=>{
 controller.post('/fetchVehicleStatisticsByMultiplemodel', async(req,res,next)=>{
 
 
-    //condition to fetch vehicle details by Year
-    conditionFilters['makes.models.name'] = { $in : req.body.model } 
-
-    console.log('conditionFilters',conditionFilters);
+    //condition to fetch vehicle details by model
+    conditionFilters['makes.models.name'] = { $in : req.body.model }  
     let records = await Vehicle.find(conditionFilters,{ "makes.models.trims.name":1, "makes.models.trims._id":1 })
    
     return res.status(def.API_STATUS.SUCCESS.OK).send(records);	
@@ -120,9 +142,7 @@ controller.post('/imageUpload', function(req, res) {
 	singleUpload(req, res, function(err) {
 	  if (err) {
 		return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err.message);
-	  }
-		console.log(req);
-		//console.log(res);
+	  }	
 	  return res.status(def.API_STATUS.SUCCESS.OK).send(req.file.location); 
 	});
 });
@@ -136,8 +156,8 @@ controller.post('/imageUploadtoBucket', function(req, res) {
 	  if (err) {
 		return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err.message);
 	  }	
-	  //console.log(req);
-	  return res.status(def.API_STATUS.SUCCESS.OK).send({fileLocation: req.file.location, fileKey:req.file.key, fileName:req.file.originalname}); 
+	  console.log(req);
+	  return res.status(def.API_STATUS.SUCCESS.OK).send({fileLocation: req.file.location, fileKey:req.file.key, fileName:req.file.originalname, fileMimeType:req.file.mimetype}); 
 	});
 });
 
@@ -147,15 +167,7 @@ controller.post('/imageUploadtoBucket', function(req, res) {
  * Function to delete object from aws s3 bucket
 */
 controller.post('/deleteObject', function(req, res) {   
-/* 	let params = {
-	  Bucket: config.get('aws.bucket'),
-	  Delete: {
-		  Objects: [
-			  {Key: req.body.fileKey}        
-		  ]
-	  }
-	};
- */  
+ 
 	let params = {
 		Bucket: config.get('aws.bucket'), 
 		Key: req.body.fileKey
@@ -174,10 +186,8 @@ controller.post('/deleteObject', function(req, res) {
 				return res.status(def.API_STATUS.SUCCESS.OK).send(true); 
 			}	
 		  }); 
-		}           // successful response
-	});
-
-  
+		}           
+	});  
 });
 
 

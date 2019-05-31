@@ -13,11 +13,9 @@ const carSchema = new mongoose.Schema({
     vin_number: { 
         type: String,       
 		unique: false,
-		text:false,
-		default:'rhewhrlkwhelkrjhwlke'
-        // required: true,
-        // minlength: 17,        
-        // maxlength: 17
+		text:false,    
+		/*minlength: 17,        
+		maxlength: 17*/
             
 	},
 	type: {
@@ -48,7 +46,47 @@ const carSchema = new mongoose.Schema({
         required: true,
         min: 2000,
         max: currentYear      
-    },
+	},
+	review_by_dealer:{
+		
+        dealer_id: {              
+			type: Schema.Types.ObjectId,
+			ref: 'Dealer',
+		},
+		rating: {
+			type: Number,  
+			default:0         
+		},
+		comment: {
+            type: String,  
+            trim: true,              
+		},
+		created_at: {
+			type: Date,
+			trim: true,
+			default: new Date(), 
+		}
+	},
+	review_by_seller:{
+		
+        seller_id: {              
+			type: Schema.Types.ObjectId,
+			ref: 'Seller',
+		},
+		rating: {
+			type: Number,  
+			default:0         
+		},
+		comment: {
+            type: String,  
+            trim: true,              
+		},
+		created_at: {
+			type: Date,
+			trim: true,
+			default: new Date(), 
+		}
+	},
 	basic_info:{
 		
         vehicle_zip: {
@@ -111,10 +149,20 @@ const carSchema = new mongoose.Schema({
             trim: true,  
             required: true,   
         },
+		vehicle_other_interior_color: {
+            type: String,  
+            trim: true,  
+            //required: true,   
+        },
 		vehicle_exterior_color: {
             type: String,  
             trim: true,  
             required: true,   
+        },
+		vehicle_other_exterior_color: {
+            type: String,  
+            trim: true,  
+            //required: true,   
         },
 		vehicle_interior_material: {
             type: String,  
@@ -200,24 +248,13 @@ const carSchema = new mongoose.Schema({
             type: String,  
             trim: true,  
             //required: true   
-        },
-		vehicle_finance_bank: {
-            type: String,  
-            trim: true,  
-            required: true   
-        },
-		vehicle_pay_off: {
-			type: Number,  
-            trim: true,  
-            required: true,
-			default: 0
-		}
+        }
 	},
 	vehicle_comments: {
 		type: String,  
 		trim: true,  
-		required: true
-	},
+		//required: true
+	},	
 	vehicle_condition: {
 		vehicle_condition_value: {
             type: String,  
@@ -268,34 +305,53 @@ const carSchema = new mongoose.Schema({
 		trim: true,  
 		//required: true
 	},
-	vehicle_offer_in_hands_price: {
-		type: Number,  
-		trim: true,  
-		required: true,
-		default: 0
-	},  
-	vehicle_proof_image: [{
-		file_path: {
-			type: String,  
+	vehicle_finance_details: {
+		vehicle_offer_in_hands_price: {
+			type: Number,  
 			trim: true,  
-			//required: true,   
+			//required: true,
+			default: 0
 		},
-		file_key: {
-			type: String,  
+		vehicle_estimated_price: {
+			type: Number,  
 			trim: true,  
-			//required: true,   
+			required: true,
+			default: 0
 		},
-		file_name: {
+		vehicle_finance_bank: {
 			type: String,  
 			trim: true,  
-			//required: true,   
+			//required: true   
 		},
-		file_category: {
-			type: String,  
+		vehicle_pay_off: {
+			type: Number,  
 			trim: true,  
-			//required: true,   
-		}
-	}],
+			//required: true,
+			default: 0
+		},	
+		vehicle_proof_image: [{
+			file_path: {
+				type: String,  
+				trim: true,  
+				//required: true,   
+			},
+			file_key: {
+				type: String,  
+				trim: true,  
+				//required: true,   
+			},
+			file_name: {
+				type: String,  
+				trim: true,  
+				//required: true,   
+			},
+			file_category: {
+				type: String,  
+				trim: true,  
+				//required: true,   
+			}
+		}]
+	},
     seller_id: {              
         type: Schema.Types.ObjectId,
 		ref: 'Seller',
@@ -322,7 +378,7 @@ const carSchema = new mongoose.Schema({
         type: Date,
         trim: true,
         default: new Date(), 
-    }
+	}
     
 }); 
 
@@ -365,7 +421,9 @@ const carJoiSchema = {
 		vehicle_fuel_type:Joi.string().trim().max(100).required(),
 		vehicle_drive_type:Joi.string().trim().max(100).required(),
 		vehicle_interior_color:Joi.string().trim().max(100).required(),
+		vehicle_other_interior_color:Joi.string().allow('').optional().trim().max(100),
 		vehicle_exterior_color:Joi.string().trim().max(100).required(),
+		vehicle_other_exterior_color:Joi.string().allow('').optional().trim().max(100),
 		vehicle_interior_material:Joi.string().trim().max(100).required(),
 	}).required(),
 	vehicle_images: Joi.array().items(
@@ -393,11 +451,10 @@ const carJoiSchema = {
 		vehicle_clean_title: Joi.boolean().required(),
 		vehicle_ownership_value: Joi.string().trim(),
 		vehicle_ownership_description: Joi.string().allow('').optional().trim(),
-		vehicle_finance_bank: Joi.string().trim().required(),
-		vehicle_pay_off: Joi.number().required(),
+		
 		
 	}).required(),
-	vehicle_comments: Joi.string().trim().required(),
+	vehicle_comments: Joi.string().allow('').optional().trim(),	
 	vehicle_condition: Joi.object({
 		vehicle_condition_value: Joi.string().trim().max(100).required(),
 		vehicle_condition_description: Joi.string().allow('').optional().trim(),
@@ -413,15 +470,20 @@ const carJoiSchema = {
 	willing_to_drive: Joi.boolean().required(),
 	vehicle_to_be_picked_up: Joi.boolean().required(),
     willing_to_drive_how_many_miles: Joi.number(),
-    vehicle_offer_in_hands_price: Joi.number(),
-	vehicle_proof_image: Joi.array().items(
-		Joi.object().keys({
-			file_path: Joi.string().trim(),				
-			file_name: Joi.string().trim(),
-			file_key: Joi.string().trim(),
-			file_category: Joi.string().trim(),
-		})
-	),
+	vehicle_finance_details: Joi.object({
+		vehicle_estimated_price: Joi.number().required(),
+		vehicle_offer_in_hands_price: Joi.number(),
+		vehicle_finance_bank: Joi.string().allow('').optional().trim(),
+		vehicle_pay_off: Joi.number(),
+		vehicle_proof_image: Joi.array().items(
+			Joi.object().keys({
+				file_path: Joi.string().trim(),				
+				file_name: Joi.string().trim(),
+				file_key: Joi.string().trim(),
+				file_category: Joi.string().trim(),
+			})
+		),
+	}).required(),	
     created_at:Joi.date(),
     updated_at:Joi.date(),    
     seller_id:Joi.objectId().required(),
@@ -445,7 +507,7 @@ const listingJoiSchema = {
     sortDirection:Joi.string().trim().required(),
     sortProperty:Joi.string().trim().required(),
     pageNumber:Joi.number().min(0).required(), 
-    size :Joi.number().min(6).max(96).positive().required(),
+    size :Joi.number().valid(6,12,24,48,96).required(),
     type:Joi.string().trim().required(),
     filters:Joi.object({
         bid: Joi.array().items().allow(null),
@@ -464,12 +526,53 @@ const listingDealerCarsJoiSchema = {
     sortDirection:Joi.string().trim().required(),
     sortProperty:Joi.string().trim().required(),
     pageNumber:Joi.number().min(0).required(), 
-    size :Joi.number().min(6).positive().required(),
+	size :Joi.number().valid(6,12,24,48,96).required(),
     type:Joi.string().trim().required(),
     filters:Joi.object({
         bid: Joi.array().items().allow(null),
         years: Joi.array().items().allow(null)
     })
+}
+
+
+
+// validating car more information contact request
+const contactRequestJoiSchema = {  
+	// dealer_id:Joi.objectId().required(),  
+	 name: Joi.string().allow('').optional().trim(),     
+	 email: Joi.string().trim().email().required(),
+	 phone: Joi.string().trim().min(10).max(15).required(),
+	 message:Joi.string().allow('').optional().trim(),  
+	 preference :Joi.string().valid('email', 'phone'),
+	 
+ }
+
+// validating review given by dealer
+ const reviewByDealerJoiSchema = {  
+	 _id:Joi.objectId().required(),  
+	 dealer_id:Joi.objectId().required(),  
+	 rating: Joi.string().trim().email().required(),
+	 comment: Joi.string().trim().min(10).max(1000),	 
+	 created_at: {
+        type: Date,
+        trim: true,
+        default: new Date(), 
+    }
+	 
+ }
+
+ // validating review given by dealer
+ const reviewBySellerJoiSchema = {  
+	_id:Joi.objectId().required(),  
+	seller_id:Joi.objectId().required(),  
+	rating: Joi.string().trim().email().required(),
+	comment: Joi.string().trim().min(10).max(1000),	 
+	created_at: {
+	   type: Date,
+	   trim: true,
+	   default: new Date(), 
+   }
+	
 }
 
 
@@ -495,6 +598,16 @@ function validateDealerCarListing(data) {
 function validateCarDetail(data) {
     return Joi.validate(data, carDetailJoiSchema, { allowUnknown: true });
 }
+function validateContactRequest(data) {
+    return Joi.validate(data, contactRequestJoiSchema, { allowUnknown: true });
+}
+
+function validateReviewByDealer(data) {
+    return Joi.validate(data, reviewByDealerJoiSchema, { allowUnknown: true });
+}
+function validateReviewBySeller(data) {
+    return Joi.validate(data, reviewBySellerJoiSchema, { allowUnknown: true });
+}
 
 
 module.exports.Car = Car;
@@ -503,5 +616,9 @@ module.exports.validateRemoveCar = validateRemoveCar;
 module.exports.validateCarListing = validateCarListing;
 module.exports.validateDealerCarListing = validateDealerCarListing;
 module.exports.validateCarDetail = validateCarDetail;
+module.exports.validateContactRequest = validateContactRequest;
+module.exports.validateReviewByDealer = validateReviewByDealer;
+module.exports.validateReviewBySeller = validateReviewBySeller;
+
 
 
