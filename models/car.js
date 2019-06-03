@@ -168,6 +168,25 @@ const carSchema = new mongoose.Schema({
             type: String,  
             trim: true,  
             required: true,   
+		},
+		location: {
+            city: {
+				type: String,  
+				trim: true,  			  
+			}, 
+			state: {
+				type: String,  
+				trim: true,  			  
+			},
+			state_abbreviation: {
+				type: String,  
+				trim: true,  			  
+			},
+			/*coordinates:{
+				type: String,
+        		coordinates: [Number],				
+			}*/
+           
         } 
 		
     }, 
@@ -349,6 +368,11 @@ const carSchema = new mongoose.Schema({
 				type: String,  
 				trim: true,  
 				//required: true,   
+			},
+			file_mimetype: {
+				type: String,  
+				trim: true,  
+				//required: true,   
 			}
 		}]
 	},
@@ -449,7 +473,7 @@ const carJoiSchema = {
 	}).required(),
 	vehicle_ownership: Joi.object({
 		vehicle_clean_title: Joi.boolean().required(),
-		vehicle_ownership_value: Joi.string().trim(),
+		vehicle_ownership_value: Joi.string().allow('').optional().trim(),
 		vehicle_ownership_description: Joi.string().allow('').optional().trim(),
 		
 		
@@ -481,6 +505,7 @@ const carJoiSchema = {
 				file_name: Joi.string().trim(),
 				file_key: Joi.string().trim(),
 				file_category: Joi.string().trim(),
+				file_mimetype: Joi.string().trim(),
 			})
 		),
 	}).required(),	

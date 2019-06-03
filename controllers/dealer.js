@@ -2,6 +2,8 @@ const config = require('config');
 const def = require('../models/def/statuses');
 const validate = require('../interceptors/validate');
 const auth = require('../interceptors/auth');
+const fs = require('fs');
+const jwt = require('jsonwebtoken'); //generate json token
 const upload = require('../helpers/upload');
 const mongoose = require('mongoose');
 const _ = require('lodash'); //js utility lib
@@ -20,7 +22,7 @@ const {
 
 const {
 	sendMail
-} = require('../helpers/mail');
+} = require('../helpers/emailService');
 
 
 const express = require('express');
@@ -65,6 +67,26 @@ controller.post('/phoneNumberExist', validate(validatePhoneNumber), async (req, 
 })
 
 
+
+/* ====================== Dealer forgot password  verify token =======================================*/
+controller.post('/verifyToken', async(req,res,next)=>{
+	//fetching the user data
+	let privateKEY = fs.readFileSync('./config/keys/private.key');
+    let decoded = jwt.decode(req.body.token, privateKEY);
+    console.log('the email is', decoded);
+	if (!decoded || !decoded.email) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('your token is invalid.');
+
+    let dealer = await Dealer.findOne({ 'emails.email': decoded.email });
+    // console.log('the seller is', seller);
+    if (!dealer)
+        return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('seller not found.');
+	//check if the user is already verified
+	res.status(def.API_STATUS.SUCCESS.OK).send({_id:dealer._id,email:dealer.emails[0].email});
+   
+	
+})
+
+
 /* ====================== Fetch Dealer data  =======================================*/
 controller.post('/fetchData', [auth], async (req, res, next) => {
 	//fetching the user data
@@ -77,18 +99,22 @@ controller.post('/fetchData', [auth], async (req, res, next) => {
 
 /* ====================== Dealer forgot password  =======================================*/
 controller.post('/forgotPassword', validate(validateEmail), async (req, res, next) => {
-	//fetching the user data
-	const dealer = await Dealer.findOne({ "emails.email": req.body.email }, { _id: 1 });
-	if (!dealer) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('If your entered email address exist in our system, you will receive an email with instruction how to reset your password.');
 
-	//send mail	
-	sendMail({
-		to: 'sandeep.kumar@trigma.in',
-		subject: 'Test Email',
-		message: 'your <b>message</b> goes here',
-	})
+	const dealer = await Dealer.findOne({ "emails.email": req.body.email });
+	if(!dealer) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send("email does't exists.");	
+	const token = dealer.generateAuthToken();
 
-	return res.status(def.API_STATUS.SERVER_ERROR.NOT_IMPLEMENTED).send('Email functionality is pending to integrate.');
+    const name = dealer.name.prefix + ' ' + dealer.name.first_name
+    const webEndPoint = config.get('webEndPoint') + '/dealer/reset-password/' + token;
+    const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;"> You have requested a password reset, please follow the link below to reset your password <p style="line-height: 24px; margin-bottom:20px;"> Please ignore this email if you did not request a password change.</p> <p style="line-height: 24px; margin-bottom:20px;"> <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">Follow this link to reset your password.</a> </p>'
+        
+     await sendMail({
+        to:req.body.email,
+        subject: 'Forgot Password',
+        message:message,
+    })
+	 res.status(def.API_STATUS.SUCCESS.OK).send(true);
+	// return res.status(def.API_STATUS.SERVER_ERROR.NOT_IMPLEMENTED).send('Oops!! we got some issues in sending mail. Please try again.');
 })
 
 
@@ -187,7 +213,7 @@ controller.post('/updatePassword', async (req, res, next) => {
 		if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Could not save updated password.');
 
 		//send mail		
-		const name = seller.name.prefix + ' ' + seller.name.first_name
+		const name = dealer.name.prefix + ' ' + dealer.name.first_name
 		const webEndPoint = config.get('webEndPoint') + '/dealer/login';
 		const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have reset your password successfully.</p><p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p><p style="line-height: 24px;margin-bottom:15px;">Note*: If you did not request to password reset, please contact to admin.</p>'
 		sendMail({

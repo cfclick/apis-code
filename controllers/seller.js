@@ -2,6 +2,8 @@ const config = require('config');
 const def = require('../models/def/statuses');
 const validate = require('../interceptors/validate');
 const auth = require('../interceptors/auth');	
+const fs = require('fs');
+const jwt = require('jsonwebtoken'); //generate json token
 const upload = require('../helpers/upload');
 const _ = require('lodash'); //js utility lib
 const bcrypt = require('bcrypt'); // for password encryption
@@ -16,7 +18,7 @@ const {
 
 const {
     sendMail
-} = require('../helpers/mail');
+} = require('../helpers/emailService');
 
 
 const express = require('express');
@@ -76,25 +78,45 @@ controller.post('/fetchData', [auth], async(req,res,next)=>{
 /* ====================== Seller forgot password  =======================================*/
 controller.post('/forgotPassword',validate(validateEmail), async(req,res,next)=>{
     //fetching the user data
-	const seller = await Seller.findOne({ "emails.email": req.body.email }, { _id:1, name:1 });
-	if(!seller) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('If your entered email address exist in our system, you will receive an email with instruction how to reset your password.');	
-	
-	//send mail	
-	const name = seller.name.prefix+' '+seller.name.first_name
-	const webEndPoint = config.get('webEndPoint')+'/seller/login';	
-	const message='<p style="line-height: 24px; margin-bottom:15px;">'+name+',</p><p style="line-height: 24px;margin-bottom:15px;">Great news, you will now be the first to see exclusive previews of our latest collections, hear about news from the Abacus!community and get the most up to date news in the world of fashion.</p><p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using the <a target="_blank" href="'+webEndPoint+'" style="text-decoration: underline;">Here</a> link.</p>'
+	const seller = await Seller.findOne({ "emails.email": req.body.email });
+	if(!seller) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send("email does't exists.");	
+	console.log('the seller is',seller)
+	const token = seller.generateAuthToken();
+
+    const name = seller.name.prefix + ' ' + seller.name.first_name
+    const webEndPoint = config.get('webEndPoint') + '/seller/reset-password/' + token;
+    const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;"> You have requested a password reset, please follow the link below to reset your password <p style="line-height: 24px; margin-bottom:20px;"> Please ignore this email if you did not request a password change.</p> <p style="line-height: 24px; margin-bottom:20px;"> <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">Follow this link to reset your password.</a> </p>'
         
-    const status = await sendMail({
+     await sendMail({
         to:req.body.email,
         subject: 'Forgot Password',
         message:message,
     })
-	console.log('status',status);
-	if(status) return res.status(def.API_STATUS.SERVER_ERROR.NOT_IMPLEMENTED).send('Email has been sent to inbox. Please check.');
-	return res.status(def.API_STATUS.SERVER_ERROR.NOT_IMPLEMENTED).send('Oops!! we got some issues in sending mail. Please try again.');
+	 res.status(def.API_STATUS.SUCCESS.OK).send(true);
+	// return res.status(def.API_STATUS.SERVER_ERROR.NOT_IMPLEMENTED).send('Oops!! we got some issues in sending mail. Please try again.');
 	
 })
 
+
+
+/* ====================== Seller forgot password  verify email =======================================*/
+controller.post('/verifyToken', async(req,res,next)=>{
+	console.log('the errrrrrrrrrrrrrrrrrrrrrrrr')
+	//fetching the user data
+	let privateKEY = fs.readFileSync('./config/keys/private.key');
+    let decoded = jwt.decode(req.body.token, privateKEY);
+    console.log('the email is', decoded);
+	if (!decoded || !decoded.email) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('your token is invalid.');
+
+    let seller = await Seller.findOne({ 'emails.email': decoded.email });
+    // console.log('the seller is', seller);
+    if (!seller)
+        return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('seller not found.');
+	//check if the user is already verified
+	res.status(def.API_STATUS.SUCCESS.OK).send({_id:seller._id,email:seller.emails[0].email});
+   
+	
+})
 
 
 /* ====================== Seller profile  =======================================*/

@@ -146,6 +146,7 @@ userSchema.methods.generateAuthToken = function () {
         expiresIn: "1h",
         algorithm: "RS256"
     };
+    console.log('the emailnis ',this.emails)
     const token = jwt.sign({
         _id: this._id,
         email: this.emails[0].email,
