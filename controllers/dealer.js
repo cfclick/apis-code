@@ -105,14 +105,20 @@ controller.post('/forgotPassword', validate(validateEmail), async (req, res, nex
 	const token = dealer.generateAuthToken();
 
     const name = dealer.name.prefix + ' ' + dealer.name.first_name
-    const webEndPoint = config.get('webEndPoint') + '/dealer/reset-password/' + token;
-    const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;"> You have requested a password reset, please follow the link below to reset your password <p style="line-height: 24px; margin-bottom:20px;"> Please ignore this email if you did not request a password change.</p> <p style="line-height: 24px; margin-bottom:20px;"> <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">Follow this link to reset your password.</a> </p>'
+    const webEndPoint = config.get('webEndPointStaging') + '/dealer/reset-password/' + token;
+    // const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;"> You have requested a password reset, please follow the link below to reset your password <p style="line-height: 24px; margin-bottom:20px;"> Please ignore this email if you did not request a password change.</p> <p style="line-height: 24px; margin-bottom:20px;"> <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">Follow this link to reset your password.</a> </p>'
         
-     await sendMail({
-        to:req.body.email,
-        subject: 'Forgot Password',
-        message:message,
-    })
+   	const msg ={
+        to: req.body.email,
+        from :config.get('fromEmail'),
+        subject:"Dealer's Forgot Password",
+        template_id:config.get('email-templates.forgot-password-template'),
+        dynamic_template_data:{
+			forgotpasswordlink:webEndPoint,
+			name:name
+		}
+	}
+	await sendMail(msg)
 	 res.status(def.API_STATUS.SUCCESS.OK).send(true);
 	// return res.status(def.API_STATUS.SERVER_ERROR.NOT_IMPLEMENTED).send('Oops!! we got some issues in sending mail. Please try again.');
 })
@@ -208,19 +214,25 @@ controller.post('/updatePassword', async (req, res, next) => {
 	const password = await bcrypt.hash(req.body.password, salt);
 
 
-	Dealer.findOneAndUpdate({ "emails.email": req.body.email }, { $set: { password: password } }, { new: true }, function (err, doc) {
+	Dealer.findOneAndUpdate({ "emails.email": req.body.email }, { $set: { password: password } }, { new: true },async function (err, doc) {
 
 		if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Could not save updated password.');
 
 		//send mail		
 		const name = dealer.name.prefix + ' ' + dealer.name.first_name
-		const webEndPoint = config.get('webEndPoint') + '/dealer/login';
-		const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have reset your password successfully.</p><p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p><p style="line-height: 24px;margin-bottom:15px;">Note*: If you did not request to password reset, please contact to admin.</p>'
-		sendMail({
+		const webEndPoint = config.get('webEndPointStaging') + '/dealer/login';
+	
+		const msg ={
 			to: req.body.email,
-			subject: 'Password Reset Request: Successfully Reset',
-			message: message,
-		})
+			from :config.get('fromEmail'),
+			Subject:"Password Reset",
+			template_id:config.get('email-templates.reset-password-template'),
+			dynamic_template_data:{
+				loginLink:webEndPoint,
+				name:name
+			}
+		}
+		await sendMail(msg);
 
 		res.status(def.API_STATUS.SUCCESS.OK).send(doc);
 
@@ -231,18 +243,6 @@ controller.post('/updatePassword', async (req, res, next) => {
 
 
 
-//create bid...
-controller.post('/createBi', validate(validateBid), async (req, res) => {
-	sendMail({
-		to: 'asdasd',
-		subject: 'Password Reset Request: Successfully Reset',
-		message: 'message',
-	})
-	res.json({
-		succes: true,
-
-	})
-})
 
 //create bid...
 controller.post('/createBid', validate(validateBid), async (req, res) => {

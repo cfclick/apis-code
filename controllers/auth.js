@@ -27,7 +27,6 @@ const {
 const express = require('express');
 const controller = express.Router();
 
-
 /**
  * Seller Login, signup
  */
@@ -93,14 +92,20 @@ controller.post('/seller/signup', validate(validateSeller), async (req, res) => 
         console.log('the token is ', generateAuthToken(seller));
         const token = generateAuthToken(seller);
         const name = seller.name.prefix + ' ' + seller.name.first_name
-        const webEndPoint = config.get('webEndPoint') + '/seller/verify-email/' + token;
-        const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
-        sendMail({
-            to: req.body.emails[0].email,
-            subject: "Seller's Account Verification",
-            message: message,
-        });
-        await Seller.findOneAndUpdate({ _id: seller._id }, { $set: { token: token } }, { new: true })
+        const webEndPoint = config.get('webEndPointStaging') + '/seller/verify-email/' + token;
+        // const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
+       const msg ={
+        to: req.body.emails[0].email,
+        from :config.get('fromEmail'),
+        subject:"Seller's Account Verification",
+        template_id:config.get('email-templates.seller-welcome-template'),
+        dynamic_template_data:{
+            verificationLink:webEndPoint,
+            name:name
+        }
+       }
+        sendMail(msg)
+                await Seller.findOneAndUpdate({ _id: seller._id }, { $set: { token: token } }, { new: true })
 
         res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(seller, ['_id']));
     });
@@ -158,7 +163,7 @@ controller.post('/seller/sendVerificationLink', async (req, res) => {
     console.log('the token is ', generateAuthToken(user));
     const token = generateAuthToken(user);
     const name = user.name.prefix + ' ' + user.name.first_name
-    const webEndPoint = config.get('webEndPoint') + '/seller/verify-email/' + token;
+    const webEndPoint = config.get('webEndPointStaging') + '/seller/verify-email/' + token;
     const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
     sendMail({
         to: user.emails[0].email,
@@ -289,13 +294,18 @@ controller.post('/dealer/signup', validate(validateDealer), async (req, res) => 
         dealer['cipher'] = req.body.password;
         const token = generateAuthToken(dealer);
         const name = dealer.name.prefix + ' ' + dealer.name.first_name
-        const webEndPoint = config.get('webEndPoint') + '/dealer/verify-email/' + token;
-        const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a dealer.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
-        sendMail({
+        const webEndPoint = config.get('webEndPointStaging') + '/dealer/verify-email/' + token;
+        // const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a dealer.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
+        const msg ={
             to: req.body.emails[0].email,
-            subject: "Dealer's Account Verification",
-            message: message,
-        })
+            from :config.get('fromEmail'),
+            subject:"Dealer's Account Verification",
+            template_id:config.get('email-templates.dealer-welcome-template'),
+            dynamic_template_data:{
+                verificationLink:webEndPoint,
+                name:name
+            }
+           }
 
         await Dealer.findOneAndUpdate({ _id: dealer._id }, { $set: { token: token } }, { new: true })
         res.status(def.API_STATUS.SUCCESS.OK).send(true);
@@ -357,7 +367,7 @@ controller.post('/dealer/sendVerificationLink', async (req, res) => {
     console.log('the token is ', generateAuthToken(user));
     const token = generateAuthToken(user);
     const name = user.name.prefix + ' ' + user.name.first_name
-    const webEndPoint = config.get('webEndPoint') + '/dealer/verify-email/' + token;
+    const webEndPoint = config.get('webEndPointStaging') + '/dealer/verify-email/' + token;
     const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
     sendMail({
         to: user.emails[0].email,

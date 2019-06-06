@@ -379,3 +379,167 @@
 {"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-03T09:27:19.229Z"}
 {"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-03T10:09:03.220Z"}
 {"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-03T10:09:03.267Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-03T11:04:28.516Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-03T11:04:28.581Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-03T12:59:48.757Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-03T12:59:49.082Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-04T04:18:19.974Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-04T04:18:20.019Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-04T10:16:41.935Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-04T10:16:42.272Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-04T10:53:48.548Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-04T10:53:48.633Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-04T10:55:20.027Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-04T10:55:20.090Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T06:09:43.879Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T06:09:43.937Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T09:44:14.727Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T09:44:14.823Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T09:48:59.827Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T09:48:59.871Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T09:49:56.586Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T09:50:01.625Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T09:56:16.593Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T09:56:16.669Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T09:56:37.703Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T09:56:37.780Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T09:56:56.669Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T09:56:56.722Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T09:59:28.903Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T09:59:28.944Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T09:59:37.303Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T09:59:37.352Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:00:04.445Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:00:09.489Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:00:39.196Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:00:39.250Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:10:33.656Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:10:33.710Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:19:25.534Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:19:25.596Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:20:09.132Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:20:09.197Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:23:28.028Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:23:28.096Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:25:09.249Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:25:09.304Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:25:42.953Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:25:48.004Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:26:12.265Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:26:12.329Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:26:48.840Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:26:48.894Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:27:03.419Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:27:03.477Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:27:41.801Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:27:41.852Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:28:05.679Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:28:05.728Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:28:07.569Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:28:07.619Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:30:01.578Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:30:01.676Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T10:35:30.481Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T10:35:30.541Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T11:11:02.295Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T11:11:02.354Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T11:11:15.649Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T11:11:15.701Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T11:21:33.804Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T11:21:33.851Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T11:21:56.283Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T11:21:56.341Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T11:22:59.151Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T11:22:59.198Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T11:23:01.849Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T11:23:01.897Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T11:28:58.526Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T11:28:58.651Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T11:39:23.671Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T11:39:23.721Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T11:43:04.230Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T11:43:04.327Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T11:47:35.704Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T11:47:35.759Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T11:56:54.306Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T11:56:54.386Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T12:17:14.243Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T12:17:14.333Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T12:29:06.135Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T12:29:06.175Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T12:31:51.693Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T12:31:51.739Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T12:32:27.206Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T12:32:27.247Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T12:33:12.639Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T12:33:12.708Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T12:40:26.814Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T12:40:26.868Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T12:41:13.815Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T12:41:13.875Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-05T12:58:57.979Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-05T12:58:58.318Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T04:43:26.921Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T04:43:26.949Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T04:43:41.662Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T04:43:41.933Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:37:54.862Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:37:54.992Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:38:03.402Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:38:03.457Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:38:29.278Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:38:29.364Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:38:46.459Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:38:46.526Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:38:48.021Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:38:53.071Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:39:27.231Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:39:27.292Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:40:12.596Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:40:12.659Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:40:23.428Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:40:23.499Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:41:15.505Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:41:15.871Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:41:56.019Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:41:56.088Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:42:22.219Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:42:22.306Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:42:37.261Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:42:37.348Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:42:43.939Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:42:43.992Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:43:10.384Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:43:10.434Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:44:55.451Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:44:55.508Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:47:17.918Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:47:17.965Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:47:42.567Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:47:42.655Z"}
+{"message":"Configuration property \"email-templates.forgot-password-template\" is not defined","stack":"Error: Configuration property \"email-templates.forgot-password-template\" is not defined\n    at Config.get (/home/javid/trigma/apis-code/node_modules/config/lib/config.js:203:11)\n    at controller.post (/home/javid/trigma/apis-code/controllers/seller.js:94:28)\n    at processTicksAndRejections (internal/process/task_queues.js:86:5)","level":"error","timestamp":"2019-06-06T05:48:07.055Z"}
+{"message":"Configuration property \"email-templates.forgot-password-template\" is not defined","stack":"Error: Configuration property \"email-templates.forgot-password-template\" is not defined\n    at Config.get (/home/javid/trigma/apis-code/node_modules/config/lib/config.js:203:11)\n    at controller.post (/home/javid/trigma/apis-code/controllers/seller.js:94:28)\n    at processTicksAndRejections (internal/process/task_queues.js:86:5)","level":"error","timestamp":"2019-06-06T05:48:07.151Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T05:48:45.188Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T05:48:45.254Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T06:08:57.471Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T06:08:57.575Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T06:17:00.048Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T06:17:00.146Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T06:22:36.286Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T06:22:36.459Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T06:26:12.525Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T06:26:12.700Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T06:26:28.904Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T06:26:29.030Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T07:01:38.398Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T07:01:38.440Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T07:02:02.768Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T07:02:02.877Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T07:02:56.578Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T07:02:56.634Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T07:03:23.920Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T07:03:23.983Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T07:03:48.865Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T07:03:48.909Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-06-06T07:04:16.966Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-06-06T07:04:17.053Z"}

@@ -84,14 +84,22 @@ controller.post('/forgotPassword',validate(validateEmail), async(req,res,next)=>
 	const token = seller.generateAuthToken();
 
     const name = seller.name.prefix + ' ' + seller.name.first_name
-    const webEndPoint = config.get('webEndPoint') + '/seller/reset-password/' + token;
+    const webEndPoint = config.get('webEndPointStaging') + '/seller/reset-password/' + token;
     const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;"> You have requested a password reset, please follow the link below to reset your password <p style="line-height: 24px; margin-bottom:20px;"> Please ignore this email if you did not request a password change.</p> <p style="line-height: 24px; margin-bottom:20px;"> <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">Follow this link to reset your password.</a> </p>'
-        
-     await sendMail({
-        to:req.body.email,
-        subject: 'Forgot Password',
-        message:message,
-    })
+		 
+	const msg ={
+        to: req.body.email,
+        from :config.get('fromEmail'),
+        Subject:"Seller's Forgot Password",
+        template_id:config.get('email-templates.forgot-password-template'),
+        dynamic_template_data:{
+			forgotpasswordlink:webEndPoint,
+			name:name
+		}
+	}
+	
+       console.log('the msg is-------------',msg)
+     await sendMail(msg)
 	 res.status(def.API_STATUS.SUCCESS.OK).send(true);
 	// return res.status(def.API_STATUS.SERVER_ERROR.NOT_IMPLEMENTED).send('Oops!! we got some issues in sending mail. Please try again.');
 	
@@ -101,7 +109,6 @@ controller.post('/forgotPassword',validate(validateEmail), async(req,res,next)=>
 
 /* ====================== Seller forgot password  verify email =======================================*/
 controller.post('/verifyToken', async(req,res,next)=>{
-	console.log('the errrrrrrrrrrrrrrrrrrrrrrrr')
 	//fetching the user data
 	let privateKEY = fs.readFileSync('./config/keys/private.key');
     let decoded = jwt.decode(req.body.token, privateKEY);
@@ -203,10 +210,6 @@ controller.post('/verifyActivateSeller', async(req,res,next)=>{
 controller.post('/updatePassword', async(req,res,next)=>{
 	console.log('email',req.body.email)
 
-	
-
-
-    
 	//fetching the user data
 	const seller = await Seller.findOne({ "emails.email": req.body.email }, { emails:1, _id:0, name:1 });
 
@@ -218,19 +221,29 @@ controller.post('/updatePassword', async(req,res,next)=>{
     const password = await bcrypt.hash(req.body.password, salt);
 
 	console.log('password',password)
-    Seller.findOneAndUpdate({ "emails.email": req.body.email },{ $set:{ password:password } },{ new: true },	function(err, doc){
+    Seller.findOneAndUpdate({ "emails.email": req.body.email },{ $set:{ password:password } },{ new: true }, async function(err, doc){
 	
 		if(err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Could not save updated password.');
 
 		//send mail		
         const name = seller.name.prefix+' '+seller.name.first_name
-        const webEndPoint = config.get('webEndPoint')+'/seller/login';        
-        const message='<p style="line-height: 24px; margin-bottom:15px;">'+name+',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have reset your password successfully.</p><p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using <a target="_blank" href="'+webEndPoint+'" style="text-decoration: underline;">this</a> link.</p><p style="line-height: 24px;margin-bottom:15px;">Note*: If you did not request to password reset, please contact to admin.</p>'
-        sendMail({
-            to:req.body.email,
-            subject: 'Password Reset Request: Successfully Reset',
-            message:message,
-        })
+        const webEndPoint = config.get('webEndPointStaging')+'/seller/login';        
+        // const message='<p style="line-height: 24px; margin-bottom:15px;">'+name+',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have reset your password successfully.</p><p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using <a target="_blank" href="'+webEndPoint+'" style="text-decoration: underline;">this</a> link.</p><p style="line-height: 24px;margin-bottom:15px;">Note*: If you did not request to password reset, please contact to admin.</p>'
+	   
+		const msg ={
+			to: req.body.email,
+			from :config.get('fromEmail'),
+			subject:"Password Reset",
+			template_id:config.get('email-templates.reset-password-template'),
+			dynamic_template_data:{
+				loginLink:webEndPoint,
+				name:name
+			}
+		}
+		
+		
+		
+		await sendMail(msg)
 	
 		res.status(def.API_STATUS.SUCCESS.OK).send(doc);
 
@@ -257,7 +270,7 @@ controller.post('/changePassword', async(req,res,next)=>{
 
 		//send mail		
         const name = seller.name.prefix+' '+seller.name.first_name
-        const webEndPoint = config.get('webEndPoint')+'/seller/login';        
+        const webEndPoint = config.get('webEndPointStaging')+'/seller/login';        
 		const message='<p style="line-height: 24px; margin-bottom:15px;">'+name+',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, Your have reset your password successfully.</p><p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using the <a target="_blank" href="'+webEndPoint+'" style="text-decoration: underline;">Here</a> link.</p><p style="line-height: 24px;margin-bottom:15px;">Note*: If you did not request to password reset, please contact to admin.</p>'
         sendMail({
             to:req.body.email,
