@@ -22,6 +22,10 @@ const DealerRatingSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:'Dealer'
     },
+    car_id:{
+        type:Schema.Types.ObjectId,
+        ref:'Car'
+    },
     update_at:{
         type:Date,
         default:new Date()
@@ -35,6 +39,7 @@ const JoiDealerRatingSchema = {
     rating:Joi.number().required(),
     review:Joi.string(),
     create_at:Joi.date(),
+    car_id: Joi.objectId().required(),
     seller_id: Joi.objectId().required(),
     update_at:Joi.objectId()
 };
@@ -46,7 +51,7 @@ function validateDealerRating(rating) {
     return Joi.validate(rating, JoiDealerRatingSchema, { allowUnknown: true })
 };
 
-//definding the modal name for seller name
+//definding the modal name for dealeRating 
 const DealerRating =  mongoose.model('Dealer_rating',DealerRatingSchema)
 
 module.exports.DealerRating = DealerRating;

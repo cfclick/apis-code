@@ -7,8 +7,8 @@
 
     "fromEmail":"prashant.ojha@trigma.com",
     "aws":{
-        "accessKey":"AKIAUGU7PKGK5DJHMALW",
-        "secretKey":"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",
+        "accessKey":"",
+        "secretKey":"",
         "bucket": "topautobid-dev",
         "region": "us-west-2"
     },

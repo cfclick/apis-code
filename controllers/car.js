@@ -16,6 +16,7 @@ const {
     validateReviewBySeller,
     validateReviewByDealer
 } = require('../models/car');
+const { DealerRating, validateDealerRating } = require('../models/dealerrating');
 const { Bid } = require('../models/bid');
 const {
     Seller
@@ -51,7 +52,7 @@ controller.post('/newCar', [validate(validateCar)], async (req, res, next) => {
     //req.body.ref = nextRef; //modify req object by adding new ref
 
     //preparing new car object 
-    car = new Car(_.pick(req.body, ['vin_number', 'vehicle_year', 'seller_id', 'basic_info', 'vehicle_images', 'vehicle_has_second_key', '_id','is_vehicle_aftermarket', 'vehicle_aftermarket', 'vehicle_ownership', 'vehicle_comments', 'vehicle_condition', 'willing_to_drive', 'vehicle_to_be_picked_up', 'willing_to_drive_how_many_miles', 'vehicle_finance_details', 'created_at', 'updated_at']));
+    car = new Car(_.pick(req.body, ['vin_number', 'vehicle_year', 'seller_id', 'basic_info', 'vehicle_images', 'vehicle_has_second_key', '_id', 'is_vehicle_aftermarket', 'vehicle_aftermarket', 'vehicle_ownership', 'vehicle_comments', 'vehicle_condition', 'willing_to_drive', 'vehicle_to_be_picked_up', 'willing_to_drive_how_many_miles', 'vehicle_finance_details', 'created_at', 'updated_at']));
 
     //save new car
     car.save(async (err, car) => {
@@ -81,20 +82,20 @@ controller.post('/newCar', [validate(validateCar)], async (req, res, next) => {
 })
 
 controller.post('/editCar', [validate(validateCar)], async (req, res, next) => {
-   
-     //checking car exist
+
+    //checking car exist
     let car = await Car.findOne({ "_id": req.body._id }, { _id: 1 });
 
     if (!car) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('No recrod found.');
- 
-    Car.findOneAndUpdate({ _id: req.body._id },{ $set:req.body },{ new: true },	function(err, doc){
-      
-		if(err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Ooops, could not save car information!');
 
-		res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(doc, ['_id']));
+    Car.findOneAndUpdate({ _id: req.body._id }, { $set: req.body }, { new: true }, function (err, doc) {
+
+        if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Ooops, could not save car information!');
+
+        res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(doc, ['_id']));
 
     });
-    
+
 
 
 })
@@ -153,7 +154,7 @@ controller.post('/listingCars', [validate(validateCarListing)], async (req, res,
     let totalRecordsAfterFilter = await Car.find(condition).countDocuments()
 
     // calculating the car's count
-    let totalRecords = await Car.find({seller_id:req.body.seller_id}).countDocuments()
+    let totalRecords = await Car.find({ seller_id: req.body.seller_id }).countDocuments()
 
 
     //calculating the limit and skip attributes to paginate records
@@ -424,13 +425,39 @@ controller.post('/getsellerRating', async (req, res, next) => {
                         $project: {
                             dealer_id: 1,
                             updated_at: 1,
-                            bid_acceptance_date: 1
+                            bid_acceptance_date: 1,
+                            price: 1
                         }
                     }
                 ],
                 as: "car_bids"
             }
-            
+
+        },
+        {
+            $lookup: {
+                from: "dealer_ratings",
+                let: { car_id: "$_id",seller_id:"$seller_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$car_id", "$$car_id"] },
+                                    {
+                                        $eq: [
+                                            "$seller_id", "$$seller_id"]
+                                    }
+                                ]
+                            },
+
+                        },
+
+                    },
+                ],
+                as: "dealer_ratings"
+            }
+
         },
         {
             $lookup: {
@@ -453,6 +480,8 @@ controller.post('/getsellerRating', async (req, res, next) => {
                 "dealer.name": 1,
                 "car_bids.updated_at": 1,
                 "car_bids.bid_acceptance_date": 1,
+                "car_bids.price": 1,
+                "dealer_ratings":1
             }
         },
         {
@@ -469,6 +498,23 @@ controller.post('/getsellerRating', async (req, res, next) => {
 
     console.log('the rate and review are', soldCarDetails)
     res.status(def.API_STATUS.SUCCESS.OK).send({ records: soldCarDetails, count: count });
+
+
+});
+
+/**===============save the dealer rating by seller=================== */
+controller.post('/saveDealerRating', [validate(validateDealerRating)], async function (req, res) {
+    const Rating = new DealerRating({
+        rating: req.body.rating,
+        review: req.body.review,
+        car_id: req.body.car_id,
+        seller_id: req.body.seller_id
+    });
+    const Doc = await Rating.save();
+    if (!Doc)
+        return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('Something Went Wrong!.');
+    else
+        res.status(def.API_STATUS.SUCCESS.OK).send(true);
 
 
 })

@@ -164,12 +164,18 @@ controller.post('/seller/sendVerificationLink', async (req, res) => {
     const token = generateAuthToken(user);
     const name = user.name.prefix + ' ' + user.name.first_name
     const webEndPoint = config.get('webEndPointStaging') + '/seller/verify-email/' + token;
-    const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
-    sendMail({
+    // const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
+    const msg ={
         to: user.emails[0].email,
-        subject: "Seller's Account Verification",
-        message: message,
-    });
+        from :config.get('fromEmail'),
+        Subject:"Seller's Forgot Password",
+        template_id:config.get('email-templates.forgot-password-template'),
+        dynamic_template_data:{
+			forgotpasswordlink:webEndPoint,
+			name:name
+		}
+    }
+    await sendMail(msg);
     await Seller.findOneAndUpdate({ _id: user._id }, { $set: { token: token } }, { new: true })
 
     res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(user, ['_id']));
@@ -306,7 +312,8 @@ controller.post('/dealer/signup', validate(validateDealer), async (req, res) => 
                 name:name
             }
            }
-
+  
+           await sendMail(msg)
         await Dealer.findOneAndUpdate({ _id: dealer._id }, { $set: { token: token } }, { new: true })
         res.status(def.API_STATUS.SUCCESS.OK).send(true);
     });
@@ -368,12 +375,18 @@ controller.post('/dealer/sendVerificationLink', async (req, res) => {
     const token = generateAuthToken(user);
     const name = user.name.prefix + ' ' + user.name.first_name
     const webEndPoint = config.get('webEndPointStaging') + '/dealer/verify-email/' + token;
-    const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
-    sendMail({
+    // const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
+    const msg ={
         to: user.emails[0].email,
-        subject: "Dealer's Account Verification",
-        message: message,
-    });
+        from :config.get('fromEmail'),
+        Subject:"Seller's Forgot Password",
+        template_id:config.get('email-templates.forgot-password-template'),
+        dynamic_template_data:{
+			forgotpasswordlink:webEndPoint,
+			name:name
+		}
+    }
+    await sendMail(msg);
     await Dealer.findOneAndUpdate({ _id: user._id }, { $set: { token: token } }, { new: true })
 
     res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(user, ['_id']));
