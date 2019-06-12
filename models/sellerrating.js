@@ -18,9 +18,17 @@ const SellerRatingSchema = new Schema({
         type:Date,
         default:new Date()
     },
+    seller_id:{
+        type:Schema.Types.ObjectId,
+        ref:'Seller'
+    },
     dealer_id:{
         type:Schema.Types.ObjectId,
         ref:'Dealer'
+    },
+    car_id:{
+        type:Schema.Types.ObjectId,
+        ref:'Car'
     },
     update_at:{
         type:Date,
@@ -35,6 +43,7 @@ const JoiSellerRatingSchema = {
     rating:Joi.number().required(),
     review:Joi.string(),
     create_at:Joi.date(),
+    car_id:Joi.objectId().required(),
     dealer_id: Joi.objectId().required(),
     update_at:Joi.objectId()
 };

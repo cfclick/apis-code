@@ -18,9 +18,13 @@ const DealerRatingSchema = new Schema({
         type:Date,
         default:new Date()
     },
-    seller_id:{
+    dealer_id:{
         type:Schema.Types.ObjectId,
         ref:'Dealer'
+    },
+    seller_id:{
+        type:Schema.Types.ObjectId,
+        ref:'Seller'
     },
     car_id:{
         type:Schema.Types.ObjectId,

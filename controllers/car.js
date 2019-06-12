@@ -17,6 +17,7 @@ const {
     validateReviewByDealer
 } = require('../models/car');
 const { DealerRating, validateDealerRating } = require('../models/dealerrating');
+const {SellerRating,validateSellerRating}  = require('../models/sellerrating');
 const { Bid } = require('../models/bid');
 const {
     Seller
@@ -461,6 +462,31 @@ controller.post('/getsellerRating', async (req, res, next) => {
         },
         {
             $lookup: {
+                from: "seller_ratings",
+                let: { car_id: "$_id",dealer_id:"$dealer_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$car_id", "$$car_id"] },
+                                    {
+                                        $eq: [
+                                            "$dealer_id", "$$dealer_id"]
+                                    }
+                                ]
+                            },
+
+                        },
+
+                    },
+                ],
+                as: "seller_ratings"
+            }
+
+        },
+        {
+            $lookup: {
                 from: "dealers",
                 localField: "car_bids.dealer_id",
                 foreignField: "_id",
@@ -478,10 +504,12 @@ controller.post('/getsellerRating', async (req, res, next) => {
                 review_by_dealer: 1,
                 review_by_seller: 1,
                 "dealer.name": 1,
+                "dealer._id":1,
                 "car_bids.updated_at": 1,
                 "car_bids.bid_acceptance_date": 1,
                 "car_bids.price": 1,
-                "dealer_ratings":1
+                "dealer_ratings":1,
+                "seller_ratings":1
             }
         },
         {
@@ -502,12 +530,193 @@ controller.post('/getsellerRating', async (req, res, next) => {
 
 });
 
+
+/**===============================get Dealer Rating=========================== */
+controller.post('/getDealerRating', async (req, res, next) => {
+
+
+    let sortCondition = {}
+    sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort
+
+    let start = (req.body.pageNumber <= 1) ? 0 : (req.body.pageNumber - 1) * req.body.size;//no of docs to be skipped
+    //fetching the user data
+    // condition object
+    let condition = {
+        type: 'sold',
+        dealer_id: mongoose.Types.ObjectId(req.body.dealer_id)
+    };
+
+
+    if (req.body.search)
+        condition['$or'] = search(req);
+
+
+    if (_.has(req.body.filters, ['dates']))
+        condition = filters(req, condition)
+
+
+    let count = await Car.count(condition);//find the total no of sold cars
+
+
+    let soldCarDetails = await Car.aggregate([
+        {
+            $match: condition
+        },
+        {
+            $lookup: {
+                from: "car_bids",
+                let: { car_id: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$car_id", "$$car_id"] },
+                                    {
+                                        $eq: [
+                                            "$bid_acceptance", "accepted"]
+                                    }
+                                ]
+                            },
+
+                        },
+
+                    },
+                    {
+                        $project: {
+                            updated_at: 1,
+                            bid_acceptance_date: 1,
+                            price: 1
+                        }
+                    }
+                ],
+                as: "car_bids"
+            }
+
+        },
+        {
+            $lookup: {
+                from: "dealer_ratings",
+                let: { car_id: "$_id",seller_id:"$seller_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$car_id", "$$car_id"] },
+                                    {
+                                        $eq: [
+                                            "$seller_id", "$$seller_id"]
+                                    }
+                                ]
+                            },
+
+                        },
+
+                    },
+                ],
+                as: "dealer_ratings"
+            }
+
+        },
+        {
+            $lookup: {
+                from: "seller_ratings",
+                let: { car_id: "$_id",dealer_id:"$dealer_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$car_id", "$$car_id"] },
+                                    {
+                                        $eq: [
+                                            "$dealer_id", "$$dealer_id"]
+                                    }
+                                ]
+                            },
+
+                        },
+
+                    },
+                ],
+                as: "seller_ratings"
+            }
+
+        },
+        {
+            $lookup: {
+                from: "sellers",
+                localField: "seller_id",
+                foreignField: "_id",
+                as: "seller"
+            }
+        }
+        ,
+        {
+            $project: {
+                _id: 1,
+                vehicle_year: 1,
+                "basic_info.vehicle_make": 1,
+                "basic_info.vehicle_model": 1,
+                created_at: 1,
+                review_by_dealer: 1,
+                review_by_seller: 1,
+                "seller.name": 1,
+                "seller._id":1,
+                "car_bids.updated_at": 1,
+                "car_bids.bid_acceptance_date": 1,
+                "car_bids.price": 1,
+                "dealer_ratings":1,
+                "seller_ratings":1
+            }
+        },
+        {
+            $sort: sortCondition
+        },
+        {
+            $skip: parseInt(start)
+        },
+        {
+            $limit: parseInt(req.body.size)
+        },
+
+    ])
+
+    console.log('the rate and review are', soldCarDetails)
+    res.status(def.API_STATUS.SUCCESS.OK).send({ records: soldCarDetails, count: count });
+
+
+});
+
+
+/**===============save the dealer rating by seller=================== */
+controller.post('/saveSellerRating', [validate(validateSellerRating)], async function (req, res) {
+    const Rating = new SellerRating({
+        rating: req.body.rating,
+        review: req.body.review,
+        car_id: req.body.car_id,
+        seller_id:req.body.seller_id,
+        dealer_id: req.body.dealer_id
+    });
+    const Doc = await Rating.save();
+    if (!Doc)
+        return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('Something Went Wrong!.');
+    else
+        res.status(def.API_STATUS.SUCCESS.OK).send(true);
+
+
+})
+
+
+
 /**===============save the dealer rating by seller=================== */
 controller.post('/saveDealerRating', [validate(validateDealerRating)], async function (req, res) {
     const Rating = new DealerRating({
         rating: req.body.rating,
         review: req.body.review,
         car_id: req.body.car_id,
+        dealer_id:req.body.dealer_id,
         seller_id: req.body.seller_id
     });
     const Doc = await Rating.save();

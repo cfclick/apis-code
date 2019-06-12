@@ -65,6 +65,25 @@ controller.post('/phoneNumberExist',validate(validatePhoneNumber),async(req,res,
 })
 
 
+controller.post('/PasswordCorrect', async (req, res, next) => {
+	
+	//fetching the user data
+
+     const	seller = await Seller.findOne({_id:req.body.id});
+    if (!seller) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('Invalid email or password.');
+
+    //checking password match
+    const validPassword = await bcrypt.compare(req.body.previous_password, seller.password);
+
+	if (validPassword) {
+		return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send(false);
+	} else {
+		return res.status(def.API_STATUS.SUCCESS.OK).send(true);
+		
+	}
+
+})
+
 /* ====================== Fetch Seller data  =======================================*/
 controller.post('/fetchData', [auth], async(req,res,next)=>{
     //fetching the user data
@@ -271,13 +290,17 @@ controller.post('/changePassword', async(req,res,next)=>{
 		//send mail		
         const name = seller.name.prefix+' '+seller.name.first_name
         const webEndPoint = config.get('webEndPointStaging')+'/seller/login';        
-		const message='<p style="line-height: 24px; margin-bottom:15px;">'+name+',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, Your have reset your password successfully.</p><p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using the <a target="_blank" href="'+webEndPoint+'" style="text-decoration: underline;">Here</a> link.</p><p style="line-height: 24px;margin-bottom:15px;">Note*: If you did not request to password reset, please contact to admin.</p>'
-        sendMail({
-            to:req.body.email,
-            subject: 'Password Reset Request: Successfully Reset',
-            message:message,
-        })
-		
+		const msg ={
+			to: req.body.email,
+			from :config.get('fromEmail'),
+			Subject:"Password Reset",
+			template_id:config.get('email-templates.reset-password-template'),
+			dynamic_template_data:{
+				loginLink:webEndPoint,
+				name:name
+			}
+		}
+		sendMail(msg)
 		res.status(def.API_STATUS.SUCCESS.OK).send(doc);
 
 	});

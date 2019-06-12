@@ -24,17 +24,6 @@ const carSchema = new mongoose.Schema({
         enum: [ "active", "sold", "archived"],
         default: 'active'
 	},
-	bids:[
-        {
-            dealer_id:{              
-                type: Schema.Types.ObjectId,
-                ref: 'Dealer'
-            },
-            price:{
-                type: Number                  
-            },
-        }
-	],
 	best_bid:{
         type: Number, 
         default:0,
@@ -46,46 +35,6 @@ const carSchema = new mongoose.Schema({
         required: true,
         min: 2000,
         max: currentYear      
-	},
-	review_by_dealer:{
-		
-        dealer_id: {              
-			type: Schema.Types.ObjectId,
-			ref: 'Dealer',
-		},
-		rating: {
-			type: Number,  
-			default:0         
-		},
-		comment: {
-            type: String,  
-            trim: true,              
-		},
-		created_at: {
-			type: Date,
-			trim: true,
-			default: new Date(), 
-		}
-	},
-	review_by_seller:{
-		
-        seller_id: {              
-			type: Schema.Types.ObjectId,
-			ref: 'Seller',
-		},
-		rating: {
-			type: Number,  
-			default:0         
-		},
-		comment: {
-            type: String,  
-            trim: true,              
-		},
-		created_at: {
-			type: Date,
-			trim: true,
-			default: new Date(), 
-		}
 	},
 	basic_info:{
 		
@@ -380,18 +329,12 @@ const carSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
 		ref: 'Seller',
 		default:'5cd170562688321559f12f32'
+	},
+	dealer_id: {              
+        type: Schema.Types.ObjectId,
+		ref: 'Dealer',
+		default:'5cd170562688321559f12f32'
     },
-    bids:[
-        {
-            dealer_id:{              
-                type: Schema.Types.ObjectId,
-                ref: 'Dealer'
-            },
-            price:{
-                type: Number                  
-            },
-        }
-    ],
     images: [], 
     offer_in_hand_images: [],
     created_at: {

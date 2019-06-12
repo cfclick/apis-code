@@ -64,7 +64,28 @@ controller.post('/phoneNumberExist', validate(validatePhoneNumber), async (req, 
 		return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send(false);
 	}
 
+});
+
+/* ====================== Dealer phone number exist  =======================================*/
+controller.post('/PasswordCorrect', async (req, res, next) => {
+	
+	//fetching the user data
+
+     const	dealer = await Dealer.findOne({_id:req.body.id});
+    if (!dealer) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('Invalid email or password.');
+
+    //checking password match
+    const validPassword = await bcrypt.compare(req.body.previous_password, dealer.password);
+
+	if (validPassword) {
+		return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send(false);
+	} else {
+		return res.status(def.API_STATUS.SUCCESS.OK).send(true);
+		
+	}
+
 })
+
 
 
 
@@ -310,5 +331,45 @@ controller.post('/getPurchaseList', async (req, res) => {
 	return res.status(def.API_STATUS.SUCCESS.OK).send({ records: records, count: totalRecords });
 })
 
+
+
+//change Password  seller
+controller.post('/changePassword', async(req,res,next)=>{
+	console.log('id',req.body.id)
+    
+	//fetching the user data
+	const dealer = await Dealer.findOne({ "_id": req.body.id }, { _id:1, name:1 });
+	if(!dealer) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('No record found.');
+    
+
+    const salt = await bcrypt.genSalt(10);
+    const password = await bcrypt.hash(req.body.password, salt);
+
+	console.log('password',password)
+    Dealer.findOneAndUpdate({ _id: req.body.id },{ $set:{ password:password } },{ new: true },	function(err, doc){
+	
+		if(err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Could not save updated password.');
+
+		//send mail		
+        const name = dealer.name.prefix+' '+dealer.name.first_name
+        const webEndPoint = config.get('webEndPointStaging')+'/seller/login';        
+		// const message='<p style="line-height: 24px; margin-bottom:15px;">'+name+',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, Your have reset your password successfully.</p><p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using the <a target="_blank" href="'+webEndPoint+'" style="text-decoration: underline;">Here</a> link.</p><p style="line-height: 24px;margin-bottom:15px;">Note*: If you did not request to password reset, please contact to admin.</p>'
+		const msg ={
+			to: req.body.email,
+			from :config.get('fromEmail'),
+			Subject:"Password Reset",
+			template_id:config.get('email-templates.reset-password-template'),
+			dynamic_template_data:{
+				loginLink:webEndPoint,
+				name:name
+			}
+		}
+		sendMail(msg)
+		
+		res.status(def.API_STATUS.SUCCESS.OK).send(doc);
+
+	});
+	
+})
 
 module.exports = controller;
