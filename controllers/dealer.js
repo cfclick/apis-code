@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt'); // for password encryption
 const {
 	Dealer
 } = require('../models/dealer');
+const {Dealership} = require('../models/dealership')
 //import bid modal
 const { Bid } = require('../models/bid');
 const { validateBid } = require('../models/bid');
@@ -116,7 +117,20 @@ controller.post('/fetchData', [auth], async (req, res, next) => {
 
 
 	res.status(def.API_STATUS.SUCCESS.OK).send(dealer);
-})
+});
+
+
+/* ======================  getAllDealerShips data  =======================================*/
+controller.post('/getAllDealerShips', [auth], async (req, res, next) => {
+	//fetching the user data
+	const dealerShips = await Dealership.find({dealer_id:req.body.dealer_id},{_id:1,legalcoroporationname:1,legal_contacts:1});
+	if (!dealerShips) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('No record found.');
+
+
+	res.status(def.API_STATUS.SUCCESS.OK).send(dealerShips);
+});
+
+
 
 /* ====================== Dealer forgot password  =======================================*/
 controller.post('/forgotPassword', validate(validateEmail), async (req, res, next) => {
@@ -271,11 +285,9 @@ controller.post('/createBid', validate(validateBid), async (req, res) => {
 		car_id: req.body.car_id,
 		dealer_id: req.body.dealer_id,
 		price: req.body.price,
-		bid_date: req.body.bid_date,
-		bid_acceptance: req.body.bid_acceptance,
-		bid_acceptance_date: req.body.bid_acceptance_date,
-		time: req.body.time,
-		fee_status: req.body.fee_status,
+		bid_date: new Date(),
+		dealership_id:req.body.dealership_id,
+		legal_contact:req.body.legal_contact
 
 	})
 	console.log('the bid is ', bid)

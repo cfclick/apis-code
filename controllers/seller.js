@@ -82,7 +82,10 @@ controller.post('/PasswordCorrect', async (req, res, next) => {
 		
 	}
 
-})
+});
+
+
+
 
 /* ====================== Fetch Seller data  =======================================*/
 controller.post('/fetchData', [auth], async(req,res,next)=>{

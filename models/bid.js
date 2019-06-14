@@ -44,6 +44,10 @@ const bidSchema = new mongoose.Schema({
         enum: ['unpaid', 'paid'],
         default: 'unpaid'
 
+    },
+    legal_contact:{
+        type:String,
+        default:''
     }
 
 });

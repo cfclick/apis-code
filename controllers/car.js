@@ -17,7 +17,7 @@ const {
     validateReviewByDealer
 } = require('../models/car');
 const { DealerRating, validateDealerRating } = require('../models/dealerrating');
-const {SellerRating,validateSellerRating}  = require('../models/sellerrating');
+const { SellerRating, validateSellerRating } = require('../models/sellerrating');
 const { Bid } = require('../models/bid');
 const {
     Seller
@@ -26,7 +26,8 @@ const {
 const {
     Dealer
 } = require('../models/dealer');
-
+const DealerWishList = require('../models/dealer-wishlist');//dealer wishlist car modal import
+const HideCar = require('../models/dealer-hide-cars');//hidecar modal import
 
 const {
     sendMail
@@ -49,7 +50,7 @@ controller.post('/newCar', [validate(validateCar)], async (req, res, next) => {
     //fetching the last record's ref
     //let lastRecord = await Car.findOne( { }, { ref: 1,_id:-1 } ).sort( { _id: -1 } )
     //let nextRef =  ((lastRecord) && lastRecord.ref)?lastRecord.ref+1:1
-    //console.log('nextRef:',nextRef);
+    //console.log('nextRef:',nextRef);f
     //req.body.ref = nextRef; //modify req object by adding new ref
 
     //preparing new car object 
@@ -170,6 +171,129 @@ controller.post('/listingCars', [validate(validateCarListing)], async (req, res,
 
     return res.status(def.API_STATUS.SUCCESS.OK).send({ records: records, count: totalRecordsAfterFilter, filteredRecords: totalRecords });
 })
+
+
+
+/* ====================== Seller car list on datatbles =======================================*/
+controller.post('/getdealerCarListing', async (req, res, next) => {
+
+    let dealerId = mongoose.Types.ObjectId(req.body.dealer_id)
+    //define the condition to fetch records (All, active, sold, archived)
+    let condition = {
+        type: 'active'
+    };
+    if (req.body.type == 'wishlist') 
+    {
+        let carIds = await DealerWishList.distinct("car_id", { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are in wish list
+        condition = { '_id': { $in: carIds } };
+    }
+     else if (req.body.type == 'hidden')
+      {
+
+        let carIds = await HideCar.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are hidden by dealer
+        condition = { '_id': { $in: carIds } };//fetck only those cars doest have bids
+    } 
+    else if (req.body.type == 'applied') 
+    {
+        let carIds = await Bid.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are hidden by dealer
+        condition = { '_id': { $in: carIds } };//fetck only those cars doest have bids
+    }
+    else if (req.body.type == 'all') 
+    { 
+        let wl_carIds = await DealerWishList.distinct("car_id", { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are in wish list
+        let hc_carIds = await HideCar.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are hidden by dealer
+        let b_carIds = await Bid.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are hidden by dealer
+        let carIds = wl_carIds.concat(hc_carIds,b_carIds)
+        condition = { '_id': { $nin: carIds } };//fetck only those cars doest have bids
+    }
+    //condition to filter cars according to loggedin seller
+    // condition['seller_id'] = mongoose.Types.ObjectId(req.body.seller_id)
+    if (!_.isEmpty(req.body.filters, true)) {
+        condition = filters(req, condition)
+    }
+
+    if (req.body.search)
+        condition['$or'] = search(req);
+
+    let sortCondition = {}
+    sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort
+
+    console.log('condition', condition);
+    // calculating the car's count after search/filters
+    let totalRecordsAfterFilter = await Car.find(condition).countDocuments()
+
+    // calculating the car's count
+    let totalRecords = await Car.find().countDocuments()
+
+
+    //calculating the limit and skip attributes to paginate records
+    let totalPages = totalRecordsAfterFilter / req.body.size;
+    //let start = (req.body.pageNumber<=1)? 0 : (req.body.pageNumber-1) * req.body.size;
+    let start = req.body.pageNumber * req.body.size;
+    console.log('the condition is', condition);
+    let records = await Car.aggregate([
+        {
+            $match: condition
+
+        },
+        {
+            $lookup: {
+                from: "car_bids",
+                localField: "_id",    // field in the car collection
+                foreignField: "car_id",  // field in the car_bids collection
+                as: "carbids"
+            }
+
+        },
+        {
+            $lookup: {
+                from: "car_bids",
+                let: { car_id: "$_id", dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$car_id", "$$car_id"] },
+                                    {
+                                        $eq: [
+                                            "$dealer_id", "$$dealer_id"]
+                                    }
+                                ]
+                            },
+
+                        },
+
+                    },
+                ],
+                as: "dealers_bids"
+            }
+
+        },
+        {
+            $addFields: {
+                bids: { $size: "$carbids" }
+
+            }
+        },
+        {
+            $sort: sortCondition
+        },
+        {
+            $skip: parseInt(start)
+        },
+        {
+            $limit: parseInt(req.body.size)
+        },
+
+    ])
+
+    return res.status(def.API_STATUS.SUCCESS.OK).send({ records: records, count: totalRecordsAfterFilter, filteredRecords: totalRecords });
+})
+
+
+
+
 
 /* ====================== Seller car list on datatbles =======================================*/
 controller.post('/listingCarsOnDatable', [validate(validateCarListing)], async (req, res, next) => {
@@ -438,7 +562,7 @@ controller.post('/getsellerRating', async (req, res, next) => {
         {
             $lookup: {
                 from: "dealer_ratings",
-                let: { car_id: "$_id",seller_id:"$seller_id" },
+                let: { car_id: "$_id", seller_id: "$seller_id" },
                 pipeline: [
                     {
                         $match: {
@@ -463,7 +587,7 @@ controller.post('/getsellerRating', async (req, res, next) => {
         {
             $lookup: {
                 from: "seller_ratings",
-                let: { car_id: "$_id",dealer_id:"$dealer_id" },
+                let: { car_id: "$_id", dealer_id: "$dealer_id" },
                 pipeline: [
                     {
                         $match: {
@@ -504,12 +628,12 @@ controller.post('/getsellerRating', async (req, res, next) => {
                 review_by_dealer: 1,
                 review_by_seller: 1,
                 "dealer.name": 1,
-                "dealer._id":1,
+                "dealer._id": 1,
                 "car_bids.updated_at": 1,
                 "car_bids.bid_acceptance_date": 1,
                 "car_bids.price": 1,
-                "dealer_ratings":1,
-                "seller_ratings":1
+                "dealer_ratings": 1,
+                "seller_ratings": 1
             }
         },
         {
@@ -597,7 +721,7 @@ controller.post('/getDealerRating', async (req, res, next) => {
         {
             $lookup: {
                 from: "dealer_ratings",
-                let: { car_id: "$_id",seller_id:"$seller_id" },
+                let: { car_id: "$_id", seller_id: "$seller_id" },
                 pipeline: [
                     {
                         $match: {
@@ -622,7 +746,7 @@ controller.post('/getDealerRating', async (req, res, next) => {
         {
             $lookup: {
                 from: "seller_ratings",
-                let: { car_id: "$_id",dealer_id:"$dealer_id" },
+                let: { car_id: "$_id", dealer_id: "$dealer_id" },
                 pipeline: [
                     {
                         $match: {
@@ -663,12 +787,12 @@ controller.post('/getDealerRating', async (req, res, next) => {
                 review_by_dealer: 1,
                 review_by_seller: 1,
                 "seller.name": 1,
-                "seller._id":1,
+                "seller._id": 1,
                 "car_bids.updated_at": 1,
                 "car_bids.bid_acceptance_date": 1,
                 "car_bids.price": 1,
-                "dealer_ratings":1,
-                "seller_ratings":1
+                "dealer_ratings": 1,
+                "seller_ratings": 1
             }
         },
         {
@@ -696,7 +820,7 @@ controller.post('/saveSellerRating', [validate(validateSellerRating)], async fun
         rating: req.body.rating,
         review: req.body.review,
         car_id: req.body.car_id,
-        seller_id:req.body.seller_id,
+        seller_id: req.body.seller_id,
         dealer_id: req.body.dealer_id
     });
     const Doc = await Rating.save();
@@ -716,7 +840,7 @@ controller.post('/saveDealerRating', [validate(validateDealerRating)], async fun
         rating: req.body.rating,
         review: req.body.review,
         car_id: req.body.car_id,
-        dealer_id:req.body.dealer_id,
+        dealer_id: req.body.dealer_id,
         seller_id: req.body.seller_id
     });
     const Doc = await Rating.save();
@@ -744,6 +868,63 @@ controller.post('/changeCarStatus', async (req, res, next) => {
     });
 
 })
+
+
+/*================move car to dealer WishList=========================*/
+
+
+controller.post('/saveCarToWishList', async (req, res, next) => {
+
+    //fetching the user data
+    const wishlist = new DealerWishList({
+        car_id: req.body.carId,
+        dealer_id: req.body.dealer_id
+    });
+    const doc = await wishlist.save();
+
+    if (!doc) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('something went wrong!.');
+
+    res.status(def.API_STATUS.SUCCESS.OK).send(doc);
+
+
+});
+
+/*================hide car from dealer Listing=========================*/
+
+
+controller.post('/hideCar', async (req, res, next) => {
+
+    //fetching the user data
+    const hidecar = new HideCar({
+        car_id: req.body.carId,
+        dealer_id: req.body.dealer_id
+    });
+    const doc = await hidecar.save();
+     await DealerWishList.deleteOne({car_id:req.body.carId});//remove from wishlist and put in hideen cars
+    if (!doc) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('something went wrong!.');
+
+    res.status(def.API_STATUS.SUCCESS.OK).send(doc);
+
+
+});
+
+
+/*================hide car from dealer Listing=========================*/
+
+
+controller.post('/unhideCar', async (req, res, next) => {
+
+    const doc = await HideCar.deleteOne({car_id:req.body.carId,dealer_id:req.body.dealer_id});
+
+    if (!doc) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('something went wrong!.');
+
+    res.status(def.API_STATUS.SUCCESS.OK).send(doc);
+
+
+})
+
+
+
 
 function filters(req, condition) {
 

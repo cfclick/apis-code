@@ -12,8 +12,7 @@ const userSchema = new mongoose.Schema({
         
         prefix: { 
             type: String, 
-            trim: true,
-            default: 'Mr.', 
+            trim: true,        
         },
         first_name: { 
             type: String, 
@@ -193,7 +192,7 @@ const userJoiSchema = {
     
     id: Joi.objectId(),
     name: Joi.object({
-        prefix: Joi.string().required(),
+        prefix: Joi.string(),
         first_name: Joi.string().trim().min(2).max(50).required(),
         last_name: Joi.string().trim().min(2).max(50).required()
     }).required(),    
@@ -267,7 +266,7 @@ function validateProfile(profileData){
     // define the validation schema
     let schema = Joi.object().keys({
         name: Joi.object({
-            prefix: Joi.string().required(),
+           // prefix: Joi.string(),
             first_name: Joi.string().trim().min(2).max(50).required(),
             last_name: Joi.string().trim().min(2).max(50).required()
         }).required(),

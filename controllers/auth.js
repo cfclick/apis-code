@@ -8,11 +8,17 @@ const {
     Seller,
     validateSeller,
 } = require('../models/seller');
-
+const {
+    Car
+} = require('../models/car');
 const {
     Dealer,
     validateDealer,
 } = require('../models/dealer');
+
+const {
+    Dealership 
+} = require('../models/dealership');
 
 const {
     User,
@@ -50,11 +56,15 @@ controller.post('/seller/login', validate(validateLogin), async (req, res) => {
     //checking user active
     if (!seller.active) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('Account is not activted. Please contact to admin.');
 
+    let carCount = await Car.count({seller_id:seller._id});//need count to redirect
     //generating authToken
     const token = seller.generateAuthToken();
     res.setHeader('x-auth-token', token);
     res.header('Access-Control-Expose-Headers', 'x-auth-token')
-    return res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(seller, ['_id', 'name', 'emails', 'is_verified', 'phones', 'profile_pic','is_multifactor_authorized']));
+    let data = {};
+    data  =_.pick(seller, ['_id', 'name', 'location','emails', 'is_verified', 'phones', 'profile_pic','is_multifactor_authorized']);
+    data['carCount'] = carCount
+    return res.status(def.API_STATUS.SUCCESS.OK).send(data);
 
 });
 
@@ -78,7 +88,7 @@ controller.post('/seller/signup', validate(validateSeller), async (req, res) => 
     if (seller) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('Phone number already registered.');
 
     //save seller 
-    seller = new Seller(_.pick(req.body, ['name', 'username', 'emails', 'phones', 'password', 'social_login', 'active', 'created_at', 'verified', 'updated_at']));
+    seller = new Seller(_.pick(req.body, ['name', 'username', 'emails', 'phones', 'password', 'social_login', 'active', 'created_at', 'location','verified', 'updated_at']));
 
 
     //await seller.save();
@@ -93,7 +103,7 @@ controller.post('/seller/signup', validate(validateSeller), async (req, res) => 
         const token = generateAuthToken(seller);
         const name = seller.name.prefix + ' ' + seller.name.first_name
         const webEndPoint = config.get('webEndPointStaging') + '/seller/verify-email/' + token;
-        // const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a seller.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
+        
        const msg ={
         to: req.body.emails[0].email,
         from :config.get('fromEmail'),
@@ -169,7 +179,7 @@ controller.post('/seller/sendVerificationLink', async (req, res) => {
         to: user.emails[0].email,
         from :config.get('fromEmail'),
         Subject:"Seller's Forgot Password",
-        template_id:config.get('email-templates.forgot-password-template'),
+        template_id:config.get('email-templates.seller-welcome-template'),
         dynamic_template_data:{
 			forgotpasswordlink:webEndPoint,
 			name:name
@@ -288,34 +298,42 @@ controller.post('/dealer/signup', validate(validateDealer), async (req, res) => 
     if (dealer) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('Phone number already registered.');
 
     //save dealer 
-    dealer = new Dealer(_.pick(req.body, ['name', 'username', 'emails', 'phones', 'password', 'social_login', 'state', 'city', 'zip', 'dealerships', 'availabilitydate', 'time', 'timezone', 'language', 'active', 'verified', 'created_at', 'updated_at']));
+    dealer = new Dealer(_.pick(req.body, ['name', 'username', 'emails', 'phones', 'password', 'social_login', 'state', 'city', 'zip', 'availabilitydate','location', 'time', 'timezone', 'language', 'active', 'verified', 'created_at', 'updated_at']));
     console.log('the dealer is ',dealer)
     //await dealer.save();
     dealer.save(async function (err, dealer) {
         if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err);
 
 
-        //send mail	
-        //send mail	
-        dealer['cipher'] = req.body.password;
-        const token = generateAuthToken(dealer);
-        const name = dealer.name.prefix + ' ' + dealer.name.first_name
-        const webEndPoint = config.get('webEndPointStaging') + '/dealer/verify-email/' + token;
-        // const message = '<p style="line-height: 24px; margin-bottom:15px;">' + name + ',</p><p style="line-height: 24px;margin-bottom:15px;">Congratulations, You have been successfully registered as a dealer.<p style="line-height: 24px; margin-bottom:20px;">	You can verify your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
-        const msg ={
-            to: req.body.emails[0].email,
-            from :config.get('fromEmail'),
-            subject:"Dealer's Account Verification",
-            template_id:config.get('email-templates.dealer-welcome-template'),
-            dynamic_template_data:{
-                verificationLink:webEndPoint,
-                name:name
+        const dealerships = (req.body.dealerships).map((dealership, index) => {
+            dealership.dealer_id = dealer._id
+            return dealership;
+        });
+        Dealership.create(dealerships, async function (err, car) {
+            if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err);
+      
+            //send mail	
+            dealer['cipher'] = req.body.password;
+            const token = generateAuthToken(dealer);
+            const name = dealer.name.prefix + ' ' + dealer.name.first_name
+            const webEndPoint = config.get('webEndPointStaging') + '/dealer/verify-email/' + token;         
+            const msg ={
+                to: req.body.emails[0].email,
+                from :config.get('fromEmail'),
+                subject:"Dealer's Account Verification",
+                template_id:config.get('email-templates.dealer-welcome-template'),
+                dynamic_template_data:{
+                    verificationLink:webEndPoint,
+                    name:name
+                }
             }
-           }
-  
-           await sendMail(msg)
-        await Dealer.findOneAndUpdate({ _id: dealer._id }, { $set: { token: token } }, { new: true })
-        res.status(def.API_STATUS.SUCCESS.OK).send(true);
+    
+            await sendMail(msg)
+            await Dealer.findOneAndUpdate({ _id: dealer._id }, { $set: { token: token } }, { new: true })
+            res.status(def.API_STATUS.SUCCESS.OK).send(true);
+        });
+
+        
     });
 
 });
@@ -380,7 +398,7 @@ controller.post('/dealer/sendVerificationLink', async (req, res) => {
         to: user.emails[0].email,
         from :config.get('fromEmail'),
         Subject:"Seller's Forgot Password",
-        template_id:config.get('email-templates.forgot-password-template'),
+        template_id:config.get('email-templates.seller-welcome-template'),
         dynamic_template_data:{
 			forgotpasswordlink:webEndPoint,
 			name:name

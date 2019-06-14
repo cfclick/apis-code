@@ -24,20 +24,22 @@ const dealershipSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    state: {
-        type: String,
-        required: true,
+    location:{
+        state:{ 
+        type: String, 
+        required: true,       
         trim: true
-    },
-    city: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    zip: {
-        type: String,
-        required: true,
-        trim: true
+        },
+        city:{ 
+            type: String, 
+            required: true,       
+            trim: true
+        },
+        zipcode:{ 
+            type: String, 
+            required: true,       
+            trim: true
+        }
     },
     dealer_id: {
         type: Schema.Types.ObjectId,
@@ -54,8 +56,7 @@ const dealershipSchema = new mongoose.Schema({
 
                 prefix: {
                     type: String,
-                    trim: true,
-                    default: 'Mr.',
+                    trim: true,          
                 },
                 first_name: {
                     type: String,
@@ -149,20 +150,22 @@ const dealershipSchema = new mongoose.Schema({
                 type: String,
                 trim: true,
             },
-            state: {
-                type: String,
-                required: true,
+            location:{
+                state:{ 
+                type: String, 
+                required: true,       
                 trim: true
-            },
-            city: {
-                type: String,
-                required: true,
-                trim: true
-            },
-            zip: {
-                type: String,
-                required: true,
-                trim: true
+                },
+                city:{ 
+                    type: String, 
+                    required: true,       
+                    trim: true
+                },
+                zipcode:{ 
+                    type: String, 
+                    required: true,       
+                    trim: true
+                }
             },
             created_at: Date,
             default_legal_contact: {
@@ -198,10 +201,12 @@ const dealershipJoiSchema = Joi.array().min(1).items(
         legalcoroporationname: Joi.string().trim().min(2).max(50).required(),
         dealershipnumber: Joi.string().trim().min(2).max(50).required(),
         mainaddressline1: Joi.string().trim().required(),
-        mainaddressline2:Joi.string().allow(null).optional().trim(),    
-        state: Joi.string().trim().min(2).max(50).required(),
-        city: Joi.string().trim().min(2).max(50).required(),
-        zip: Joi.string().trim().min(2).max(50).required(),
+        mainaddressline2:Joi.string().allow('').optional().trim(),    
+        location: Joi.object({
+            state: Joi.string().trim().min(2).max(50).required(),
+            city: Joi.string().trim().min(2).max(50).required(),
+            zipcode: Joi.string().trim().min(2).max(50).required(),
+        }).required(), 
         profile_pic: Joi.string().allow(null).optional().trim()                            
     })
 ).required()
@@ -212,7 +217,7 @@ const contactJoiSchema = {
     contacts: Joi.array().min(1).items(
         Joi.object().keys({         
             name: Joi.object({
-                prefix: Joi.string().required(),
+               // prefix: Joi.string().required(),
                 first_name: Joi.string().trim().min(2).max(50).required(),
                 last_name: Joi.string().trim().min(2).max(50).required()
             }).required(),
@@ -240,9 +245,11 @@ const contactJoiSchema = {
             title: Joi.string().trim().required(),
             address_1: Joi.string().trim().required(),
             address_2: Joi.string().allow(null).optional().trim(),   
-            state: Joi.string().trim().min(2).max(50).required(),
-            city: Joi.string().trim().min(2).max(50).required(),
-            zip: Joi.string().trim().min(2).max(50).required(),
+            location: Joi.object({
+                state: Joi.string().trim().min(2).max(50).required(),
+                city: Joi.string().trim().min(2).max(50).required(),
+                zipcode: Joi.string().trim().min(2).max(50).required(),
+            }).required(), 
             profile_pic: Joi.string().allow(null).optional().trim(),
             default_legal_contact:Joi.boolean().required()
         })

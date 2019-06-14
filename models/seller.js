@@ -39,12 +39,23 @@ sellerSchema.pre('findOneAndUpdate', function (next) {
   });
 
 
+
+const sellerJoiSchema = {
+    userJoiSchema,
+    location: Joi.object({
+        state: Joi.string().trim().min(2).max(50).required(),
+        city: Joi.string().trim().min(2).max(50).required(),
+        zipcode: Joi.string().trim().min(2).max(50).required(),
+    }).required(), 
+    repassword:  Joi.any().valid(Joi.ref('password')).options({language: {any: {allowOnly: "and Password don't match"}}})  
+    
+    
+}
+
 //validate seller signup
 function validateSeller(seller) {
-    let schema = userJoiSchema;
-    schema.repassword = Joi.any().valid(Joi.ref('password')).options({language: {any: {allowOnly: "and Password don't match"}}})
-
-    return Joi.validate(seller, schema, { allowUnknown: true });
+   
+    return Joi.validate(seller, sellerJoiSchema, { allowUnknown: true });
 
    
 }

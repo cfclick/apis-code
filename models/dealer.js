@@ -8,21 +8,23 @@ const {
 } = require('./user');
 
 const dealerSchema = userSchema.clone().add({
-    state:{ 
+    location:{
+        state:{ 
         type: String, 
         required: true,       
         trim: true
+        },
+        city:{ 
+            type: String, 
+            required: true,       
+            trim: true
+        },
+        zipcode:{ 
+            type: String, 
+            required: true,       
+            trim: true
+        }
     },
-    city:{ 
-        type: String, 
-        required: true,       
-        trim: true
-    },
-    zip:{ 
-        type: String, 
-        required: true,       
-        trim: true
-    }, 
 	dealerships: [
 		{
 			legalcoroporationname: { 
@@ -44,21 +46,23 @@ const dealerSchema = userSchema.clone().add({
 				type: String,
 				trim: true	
 			},
-			state:{ 
-				type: String, 
-				required: true,       
-				trim: true
-			},
-			city:{ 
-				type: String, 
-				required: true,       
-				trim: true
-			},
-			zip:{ 
-				type: String, 
-				required: true,       
-				trim: true
-			}	
+			location:{
+                state:{ 
+                    type: String, 
+                    required: true,       
+                    trim: true
+                },
+                city:{ 
+                    type: String, 
+                    required: true,       
+                    trim: true
+                },
+                zipcode:{ 
+                    type: String, 
+                    required: true,       
+                    trim: true
+                }
+            },
 		}
 	],   
     availabilitydate: { 
@@ -141,17 +145,25 @@ const dealerJoiSchema = {
     userJoiSchema,
     //match password and confirm password
     title: Joi.string().trim().min(2).max(50).required(),
-    state: Joi.string().trim().min(2).max(50).required(),
-    city: Joi.string().trim().min(2).max(50).required(),
-    zip: Joi.string().trim().min(2).max(50).required(),
+
+    location: Joi.object({
+        state: Joi.string().trim().min(2).max(50).required(),
+        city: Joi.string().trim().min(2).max(50).required(),
+        zipcode: Joi.string().trim().min(2).max(50).required(),
+    }).required(), 
+
+
+    
     dealerships: Joi.array().min(1).items(
         Joi.object().keys({
             legalcoroporationname: Joi.string().trim().min(2).max(50).required(),
             dealershipnumber: Joi.string().trim().min(2).max(50).required(),
             mainaddressline1: Joi.string().trim().required(),			
-			state: Joi.string().trim().min(2).max(50).required(),
-			city: Joi.string().trim().min(2).max(50).required(),
-			zip: Joi.string().trim().min(2).max(50).required(),
+			location: Joi.object({
+                state: Joi.string().trim().min(2).max(50).required(),
+                city: Joi.string().trim().min(2).max(50).required(),
+                zipcode: Joi.string().trim().min(2).max(50).required(),
+            }).required(), 
         })
     ).required(),
     availabilitydate: Joi.object({
