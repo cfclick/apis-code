@@ -156,7 +156,7 @@ controller.post('/forgotPassword', validate(validateEmail), async (req, res, nex
 	await sendMail(msg)
 	 res.status(def.API_STATUS.SUCCESS.OK).send(true);
 	// return res.status(def.API_STATUS.SERVER_ERROR.NOT_IMPLEMENTED).send('Oops!! we got some issues in sending mail. Please try again.');
-})
+});
 
 
 

@@ -182,28 +182,24 @@ controller.post('/getdealerCarListing', async (req, res, next) => {
     let condition = {
         type: 'active'
     };
-    if (req.body.type == 'wishlist') 
-    {
+    if (req.body.type == 'wishlist') {
         let carIds = await DealerWishList.distinct("car_id", { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are in wish list
         condition = { '_id': { $in: carIds } };
     }
-     else if (req.body.type == 'hidden')
-      {
+    else if (req.body.type == 'hidden') {
 
         let carIds = await HideCar.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are hidden by dealer
         condition = { '_id': { $in: carIds } };//fetck only those cars doest have bids
-    } 
-    else if (req.body.type == 'applied') 
-    {
+    }
+    else if (req.body.type == 'applied') {
         let carIds = await Bid.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are hidden by dealer
         condition = { '_id': { $in: carIds } };//fetck only those cars doest have bids
     }
-    else if (req.body.type == 'all') 
-    { 
+    else if (req.body.type == 'all') {
         let wl_carIds = await DealerWishList.distinct("car_id", { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are in wish list
         let hc_carIds = await HideCar.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are hidden by dealer
         let b_carIds = await Bid.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are hidden by dealer
-        let carIds = wl_carIds.concat(hc_carIds,b_carIds)
+        let carIds = wl_carIds.concat(hc_carIds, b_carIds)
         condition = { '_id': { $nin: carIds } };//fetck only those cars doest have bids
     }
     //condition to filter cars according to loggedin seller
@@ -436,7 +432,7 @@ controller.post('/getCarBids', async (req, res) => {
     let totalRecords = await Bid.count(condition);//count total records 
 
     const start = body.pageNumber * body.size;//calculate how many records need to be skipped
-    //fetch all the bids recrods 
+    //fetch all the bids recrods
     let bids = await Bid.find(condition).populate({
         path: "dealer_id",
         model: "Dealer",
@@ -444,7 +440,7 @@ controller.post('/getCarBids', async (req, res) => {
     }).populate({
         path: "car_id",
         model: "Car",
-        select: "seller_id",
+        select: "vehicle_year basic_info",
         // populate: {
         //     path: 'seller_id',
         //     model: 'Seller',
@@ -889,6 +885,26 @@ controller.post('/saveCarToWishList', async (req, res, next) => {
 
 });
 
+
+
+
+/*================move car out of WishList=========================*/
+
+
+controller.post('/deleteCarFromWishList', async (req, res, next) => {
+
+    const doc = await DealerWishList.deleteOne({
+        car_id: req.body.carId,
+        dealer_id: req.body.dealer_id
+    });
+
+
+    if (!doc) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('something went wrong!.');
+
+    res.status(def.API_STATUS.SUCCESS.OK).send(doc);
+
+
+});
 /*================hide car from dealer Listing=========================*/
 
 
@@ -900,10 +916,25 @@ controller.post('/hideCar', async (req, res, next) => {
         dealer_id: req.body.dealer_id
     });
     const doc = await hidecar.save();
-     await DealerWishList.deleteOne({car_id:req.body.carId});//remove from wishlist and put in hideen cars
+    await DealerWishList.deleteOne({ car_id: req.body.carId });//remove from wishlist and put in hideen cars
     if (!doc) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('something went wrong!.');
 
     res.status(def.API_STATUS.SUCCESS.OK).send(doc);
+
+
+});
+
+/**accept
+ * accept bid
+ */
+
+controller.post('/acceptBid', async (req, res, next) => {
+
+    await Bid.updateMany({ car_id: req.body.carId }, { $set: { bid_acceptance: 'rejected' } });
+    await Bid.findOneAndUpdate({ _id: req.body.bidId }, { $set: { bid_acceptance: 'accepted' } });
+    await Car.findOneAndUpdate({ _id: req.body.carId }, { $set: { type: 'sold' } });
+
+    res.status(def.API_STATUS.SUCCESS.OK).send(true);
 
 
 });
@@ -914,7 +945,7 @@ controller.post('/hideCar', async (req, res, next) => {
 
 controller.post('/unhideCar', async (req, res, next) => {
 
-    const doc = await HideCar.deleteOne({car_id:req.body.carId,dealer_id:req.body.dealer_id});
+    const doc = await HideCar.deleteOne({ car_id: req.body.carId, dealer_id: req.body.dealer_id });
 
     if (!doc) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('something went wrong!.');
 
