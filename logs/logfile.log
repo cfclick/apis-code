@@ -230,3 +230,5 @@
 {"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-07-01T11:07:11.079Z"}
 {"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-07-01T11:16:33.524Z"}
 {"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-07-01T11:16:33.578Z"}
+{"level":"info","message":"API Started, listening on port 3000...","timestamp":"2019-07-02T11:03:24.690Z"}
+{"level":"info","message":"Connected to mongodb://localhost/topauto ","timestamp":"2019-07-02T11:03:24.883Z"}
