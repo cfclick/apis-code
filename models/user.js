@@ -142,7 +142,7 @@ userSchema.methods.generateAuthToken = function () {
         issuer: i,
         subject: s,
         audience: a,
-        expiresIn: "1h",
+        expiresIn: "10h",
         algorithm: "RS256"
     };
     console.log('the emailnis ',this.emails)

@@ -10,9 +10,9 @@ const {
 const dealerSchema = userSchema.clone().add({
     location:{
         state:{ 
-        type: String, 
-        required: true,       
-        trim: true
+            type: String, 
+            required: true,       
+            trim: true
         },
         city:{ 
             type: String, 
@@ -23,6 +23,10 @@ const dealerSchema = userSchema.clone().add({
             type: String, 
             required: true,       
             trim: true
+        },
+        coordinates: { 
+            type: [Number], 
+            index: '2dsphere'
         }
     },
 	dealerships: [

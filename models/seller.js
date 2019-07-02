@@ -8,7 +8,31 @@ const {
 
 
 //clone the userSchema and add seller properties
-const sellerSchema = userSchema.clone();
+const sellerSchema = userSchema.clone().add({
+    location:{
+        state:{ 
+            type: String, 
+            required: true,       
+            trim: true
+        },
+        city:{ 
+            type: String, 
+            required: true,       
+            trim: true
+        },
+        zipcode:{ 
+            type: String, 
+            required: true,       
+            trim: true
+        },
+        coordinates: { 
+            type: [Number], 
+            index: '2dsphere'
+        }
+    }    	
+
+});
+
 
 //seller schema hooks to process/modify data before save
 sellerSchema.pre('save', async function(next) {
@@ -28,15 +52,8 @@ sellerSchema.pre('save', async function(next) {
      
     next();
 });
-sellerSchema.pre('findOneAndUpdate', function (next) {
-  
-    /*const emails = this.getUpdate().$set.emails;  
-    const emailObject = emails.find(i => i.default == true);     
-    const username = (emailObject)?_.dropRight((emailObject.email).split('@')):'';  
-    this.getUpdate().$set.username = username*/    
-    next();
-    
-  });
+
+
 
 
 
@@ -45,7 +62,7 @@ const sellerJoiSchema = {
     location: Joi.object({
         state: Joi.string().trim().min(2).max(50).required(),
         city: Joi.string().trim().min(2).max(50).required(),
-        zipcode: Joi.string().trim().min(2).max(50).required(),
+        zipcode: Joi.string().trim().min(2).max(50).required(),                
     }).required(), 
     repassword:  Joi.any().valid(Joi.ref('password')).options({language: {any: {allowOnly: "and Password don't match"}}})  
     

@@ -174,33 +174,156 @@ controller.post('/listingCars', [validate(validateCarListing)], async (req, res,
 
 
 
+
+
+/**=====================Fetch All Car Bids ============================= */
+controller.post('/listingCarBids', async (req, res) => {
+    //----fetch all the bids corsponding to car Id----
+
+    let body = req.body;
+
+    let condition = {
+        "car_id": mongoose.Types.ObjectId(req.body.id)
+    };
+
+
+    //fetch all the bids recrods
+    let bids = await Bid.aggregate([
+        {
+            $match: condition
+        },
+        {
+            $lookup: {
+                from: "dealers",
+                localField: "dealer_id",
+                foreignField: "_id",
+                as: "dealer"
+            }
+        },
+        {
+            $lookup: {
+                from: "dealerships",
+                localField: "bids.dealership_id",
+                foreignField: "_id",
+                as: "dealership"
+            }
+        },
+        {
+            $lookup: {
+                from: "cars",
+                localField: "car_id",
+                foreignField: "_id",
+                as: "cars"
+            }
+        },
+
+        {
+            $lookup: {
+                from: "dealer_ratings",
+                let: { dealer_id: "$dealer_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    // { $eq: ["$car_id", "$$car_id"] },
+                                    {
+                                        $eq: [
+                                            "$dealer_id", "$$dealer_id"]
+                                    }
+                                ]
+                            },
+
+                        },
+
+                    },
+                ],
+                as: "dealer_ratings"
+            }
+
+        },
+        {
+            "$addFields": {
+                "dealer_rating_average": {
+                    "$divide": [
+                        { // expression returns total
+                            "$reduce": {
+                                "input": "$dealer_ratings",
+                                "initialValue": 0,
+                                "in": { "$add": ["$$value", "$$this.rating"] }
+                            }
+                        },
+                        { // expression returns ratings count
+                            "$cond": [
+                                { "$ne": [{ "$size": "$dealer_ratings" }, 0] },
+                                { "$size": "$dealer_ratings" },
+                                1
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+        ,
+
+
+        {
+            $project: {
+                fee_status: 1,
+                bids: 1,
+                car_id: 1,
+                bid_acceptance: 1,
+                "dealer.name": 1,
+                "dealership.legalcoroporationname": 1,
+                "dealership.profile_pic": 1,
+                "dealershipnumber": 1,
+                "vehicle_year": 1,
+                "basic_info": 1,
+                "dealer_rating_average": 1
+
+            }
+        }
+    ])
+
+
+
+    res.status(def.API_STATUS.SUCCESS.OK).send(bids)
+})
+
+
+
 /* ====================== Seller car list on datatbles =======================================*/
 controller.post('/getdealerCarListing', async (req, res, next) => {
 
     let dealerId = mongoose.Types.ObjectId(req.body.dealer_id)
     //define the condition to fetch records (All, active, sold, archived)
-    let condition = {
-        type: 'active'
-    };
+    let condition = {}; 
+      condition['type'] = 'active';
+
     if (req.body.type == 'wishlist') {
         let carIds = await DealerWishList.distinct("car_id", { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are in wish list
-        condition = { '_id': { $in: carIds } };
+        condition['_id'] = { $in: carIds  };
     }
     else if (req.body.type == 'hidden') {
 
         let carIds = await HideCar.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are hidden by dealer
-        condition = { '_id': { $in: carIds } };//fetck only those cars doest have bids
+        condition[ '_id'] =  { $in: carIds };//fetck only those cars doest have bids
     }
     else if (req.body.type == 'applied') {
         let carIds = await Bid.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are hidden by dealer
-        condition = { '_id': { $in: carIds } };//fetck only those cars doest have bids
+        condition[ '_id'] = { $in: carIds };//fetck only those cars doest have bids
+    }
+    else if (req.body.type == 'transactions') {
+        let carIds = await Bid.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id), bid_acceptance: 'accepted' });// select all those car ids those are hidden by dealer
+        condition[ '_id'] ={ $in: carIds };//fetck only those cars doest have bids
+        condition['type'] = 'sold'
     }
     else if (req.body.type == 'all') {
         let wl_carIds = await DealerWishList.distinct("car_id", { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are in wish list
         let hc_carIds = await HideCar.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are hidden by dealer
         let b_carIds = await Bid.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are hidden by dealer
         let carIds = wl_carIds.concat(hc_carIds, b_carIds)
-        condition = { '_id': { $nin: carIds } };//fetck only those cars doest have bids
+        condition[ '_id'] ={ $nin: carIds  };//fetck only those cars doest have bids
     }
     //condition to filter cars according to loggedin seller
     // condition['seller_id'] = mongoose.Types.ObjectId(req.body.seller_id)
@@ -214,20 +337,30 @@ controller.post('/getdealerCarListing', async (req, res, next) => {
     let sortCondition = {}
     sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort
 
-    console.log('condition', condition);
+    // console.log('condition', condition);
     // calculating the car's count after search/filters
     let totalRecordsAfterFilter = await Car.find(condition).countDocuments()
-
     // calculating the car's count
     let totalRecords = await Car.find().countDocuments()
 
-
+    let dealer = await Dealer.findOne({ _id: req.body.dealer_id });
     //calculating the limit and skip attributes to paginate records
     let totalPages = totalRecordsAfterFilter / req.body.size;
     //let start = (req.body.pageNumber<=1)? 0 : (req.body.pageNumber-1) * req.body.size;
     let start = req.body.pageNumber * req.body.size;
-    console.log('the condition is', condition);
     let records = await Car.aggregate([
+
+        {
+            "$geoNear": {
+                "near": {
+                    "type": "Point",
+                    "coordinates": dealer.location.coordinates
+                },
+                "spherical": true,
+                "distanceField": "distance",
+                "distanceMultiplier": 0.000621371,//distance in miles
+            }
+        },
         {
             $match: condition
 
@@ -244,7 +377,7 @@ controller.post('/getdealerCarListing', async (req, res, next) => {
         {
             $lookup: {
                 from: "car_bids",
-                let: { car_id: "$_id", dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) },
+                let: { car_id: "$_id", dealer_id: dealerId },
                 pipeline: [
                     {
                         $match: {
@@ -267,8 +400,64 @@ controller.post('/getdealerCarListing', async (req, res, next) => {
 
         },
         {
-            $addFields: {
-                bids: { $size: "$carbids" }
+            "$addFields": {
+
+
+                "my_bid": {
+                    $filter: {
+                        input: "$carbids",
+                        as: "item",
+                        cond: { $eq: ["$$item.dealer_id", dealerId] }
+                    }
+                },
+                "totalBids": { "$size": "$carbids" }
+            },
+        },
+        { $unwind:
+            {
+                path:"$carbids",
+                preserveNullAndEmptyArrays:true
+            }  }
+        ,
+        {
+            "$addFields": {
+                "higest_bid": {
+                    $max: "$carbids.bids.price"
+                }
+            }
+        },
+        {
+
+            $group: {
+                _id: '$_id',
+                basic_info: { $first: '$basic_info' },
+                best_bid: { $first: '$best_bid' },
+                vehicle_has_second_key: { $first: '$vehicle_has_second_key' },
+                vehicle_year: { $first: '$vehicle_year' },
+                vehicle_images: { $first: '$vehicle_images' },
+                vin_number: { $first: '$vin_number' },
+                location: { $first: '$location' },
+                created_at: { $first: '$created_at' },
+                updated_at: { $first: '$updated_at' },
+                vehicle_finance_details: { $first: '$vehicle_finance_details' },
+                vehicle_comments: { $first: '$vehicle_comments' },
+                type: { $first: '$type' },
+                vehicle_aftermarket: { $first: '$vehicle_aftermarket' },
+                review: { $first: '$review' },
+                vehicle_condition: { $first: '$vehicle_condition' },
+                willing_to_drive: { $first: '$willing_to_drive' },
+                willing_to_drive_how_many_miles: { $first: '$willing_to_drive_how_many_miles' },
+                vehicle_to_be_picked_up: { $first: '$vehicle_to_be_picked_up' },
+                is_vehicle_aftermarket: { $first: '$is_vehicle_aftermarket' },
+                vehicle_ownership: { $first: '$vehicle_ownership' },
+                vehicle_condition: { $first: '$vehicle_condition' },
+                dealers_bids: { $first: '$dealers_bids' },
+                higest_bid: { $max: '$higest_bid' },//get the max of all the bids
+                distance: { $first: '$distance' },
+                my_bid: { $first: '$my_bid' },
+                totalBids: { $first: '$totalBids' },
+
+
 
             }
         },
@@ -340,7 +529,7 @@ controller.post('/listingCarsOnDatable', [validate(validateCarListing)], async (
         },
         {
             $addFields: {
-                bids: { $size: "$carbids" }
+                totalBids: { $size: "$carbids" }
 
             }
         },
@@ -433,20 +622,107 @@ controller.post('/getCarBids', async (req, res) => {
 
     const start = body.pageNumber * body.size;//calculate how many records need to be skipped
     //fetch all the bids recrods
-    let bids = await Bid.find(condition).populate({
-        path: "dealer_id",
-        model: "Dealer",
-        select: "name",
-    }).populate({
-        path: "car_id",
-        model: "Car",
-        select: "vehicle_year basic_info",
-        // populate: {
-        //     path: 'seller_id',
-        //     model: 'Seller',
-        //     select: 'name'
-        // }
-    }).sort(sortCondition).skip(start).limit(body.size);;
+    let bids = await Bid.aggregate([
+
+        { $match: condition }
+        ,
+        {
+            $lookup: {
+                from: "dealers",
+                localField: "dealer_id",
+                foreignField: "_id",
+                as: "dealer"
+            }
+        },
+        {
+            $lookup: {
+                from: "cars",
+                localField: "car_id",
+                foreignField: "_id",
+                as: "car"
+            }
+        },
+        {
+            $lookup: {
+                from: "dealer_ratings",
+                let: { dealer_id: "$dealer_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    // { $eq: ["$car_id", "$$car_id"] },
+                                    {
+                                        $eq: [
+                                            "$dealer_id", "$$dealer_id"]
+                                    }
+                                ]
+                            },
+
+                        },
+
+                    },
+                ],
+                as: "dealer_ratings"
+            }
+
+        },
+
+
+        {
+            "$addFields": {
+                "dealer_rating_average": {
+                    "$divide": [
+                        { // expression returns total
+                            "$reduce": {
+                                "input": "$dealer_ratings",
+                                "initialValue": 0,
+                                "in": { "$add": ["$$value", "$$this.rating"] }
+                            }
+                        },
+                        { // expression returns ratings count
+                            "$cond": [
+                                { "$ne": [{ "$size": "$dealer_ratings" }, 0] },
+                                { "$size": "$dealer_ratings" },
+                                1
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+        , {
+            $project: {
+                "_id": 1,
+                "bid_date": 1,
+                "bid_acceptance": 1,
+                "price": 1,
+                "car.vehicle_year": 1,
+                "car.basic_info": 1,
+                "dealer_rating_average": 1
+            }
+        }
+
+
+
+    ]);
+
+
+    // console.log('the bid is ',JSON.stringify(bids));
+    // let bidss = await Bid.find(condition).populate({
+    //     path: "dealer_id",
+    //     model: "Dealer",
+    //     select: "name",
+    // }).populate({
+    //     path: "car_id",
+    //     model: "Car",
+    //     select: "vehicle_year basic_info",
+    //     // populate: {
+    //     //     path: 'seller_id',
+    //     //     model: 'Seller',
+    //     //     select: 'name'
+    //     // }
+    // }).sort(sortCondition).skip(start).limit(body.size);;
 
     res.status(def.API_STATUS.SUCCESS.OK).send({ records: bids, count: totalRecords })
 })
@@ -456,7 +732,6 @@ controller.post('/contactRequest', [validate(validateContactRequest)], async (re
     const name = req.body.name;
     const webEndPoint = config.get('webEndPoint') + '/seller/login';
     const message = '<p style="line-height: 24px; margin-bottom:15px;">Hello Admin,</p><p style="line-height: 24px;margin-bottom:15px;">We got a new contact request to know more information about car. Customer details is mentioned below: <p style="line-height: 24px; margin-bottom:15px;">Name:' + req.body.name + '</p> <p style="line-height: 24px; margin-bottom:15px;">Email:' + req.body.email + '</p><p style="line-height: 24px; margin-bottom:15px;">Phone:' + req.body.country_code + ' ' + req.body.phone + '</p><p style="line-height: 24px; margin-bottom:15px;">Message:' + req.body.message + '</p><p style="line-height: 24px; margin-bottom:15px;">Contact on:' + req.body.preference + '</p><p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
-    console.log(message);
     sendMail({
         to: req.body.email,
         subject: 'New Contact Request',
@@ -932,7 +1207,7 @@ controller.post('/acceptBid', async (req, res, next) => {
 
     await Bid.updateMany({ car_id: req.body.carId }, { $set: { bid_acceptance: 'rejected' } });
     await Bid.findOneAndUpdate({ _id: req.body.bidId }, { $set: { bid_acceptance: 'accepted' } });
-    await Car.findOneAndUpdate({ _id: req.body.carId }, { $set: { type: 'sold' } });
+    await Car.findOneAndUpdate({ _id: req.body.carId }, { $set: { type: 'accepted' } });
 
     res.status(def.API_STATUS.SUCCESS.OK).send(true);
 
@@ -1040,3 +1315,1211 @@ function search(req) {
 }
 
 module.exports = controller;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

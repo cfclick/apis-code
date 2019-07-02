@@ -21,7 +21,7 @@ const carSchema = new mongoose.Schema({
 	type: {
         type: String,
         trim: true,        
-        enum: [ "active", "sold", "archived"],
+        enum: [ "active", "accepted","sold", "archived"],
         default: 'active'
 	},
 	best_bid:{
@@ -119,6 +119,10 @@ const carSchema = new mongoose.Schema({
             required: true,   
 		},
 		location: {
+			type:{
+			  type:String,
+			  default:'Point'
+			},
             city: {
 				type: String,  
 				trim: true,  			  
@@ -131,10 +135,10 @@ const carSchema = new mongoose.Schema({
 				type: String,  
 				trim: true,  			  
 			},
-			/*coordinates:{
-				type: String,
-        		coordinates: [Number],				
-			}*/
+			coordinates: { 
+				type: [Number], 
+				index: '2dsphere'
+			}
            
         } 
 		
@@ -327,14 +331,13 @@ const carSchema = new mongoose.Schema({
 	},
     seller_id: {              
         type: Schema.Types.ObjectId,
-		ref: 'Seller',
-		default:'5cd170562688321559f12f32'
+		ref: 'Seller',		
 	},
-	dealer_id: {              
+	/*dealer_id: {              
         type: Schema.Types.ObjectId,
 		ref: 'Dealer',
 		default:'5cd170562688321559f12f32'
-    },
+	},*/
     images: [], 
     offer_in_hand_images: [],
     created_at: {

@@ -39,6 +39,10 @@ const dealershipSchema = new mongoose.Schema({
             type: String, 
             required: true,       
             trim: true
+        },
+        coordinates: { 
+            type: [Number], 
+            index: '2dsphere'
         }
     },
     dealer_id: {
@@ -165,6 +169,10 @@ const dealershipSchema = new mongoose.Schema({
                     type: String, 
                     required: true,       
                     trim: true
+                },
+                coordinates: { 
+                    type: [Number], 
+                    index: '2dsphere'
                 }
             },
             created_at: Date,

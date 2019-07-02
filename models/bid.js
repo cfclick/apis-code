@@ -16,18 +16,27 @@ const bidSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'Dealer'
     },
-    dealership_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'DealerShip'
-    },
-    price: {
-        type: Number
-    },
-    bid_date: {
-        type: Date,
-        trim: true,
-        default: new Date()
-    },
+   
+    bids:[{
+        price: {
+            type: Number
+        },
+        bid_date: {
+            type: Date,
+            trim: true,
+            default: new Date()
+        },
+        dealership_id: {
+            type: Schema.Types.ObjectId,
+            ref: 'DealerShip'
+        },
+        legal_contact:{
+            type:String,
+            default:''
+        }
+
+    }],
+  
     bid_acceptance: {
         type: String,
         trim: true,
@@ -45,10 +54,7 @@ const bidSchema = new mongoose.Schema({
         default: 'unpaid'
 
     },
-    legal_contact:{
-        type:String,
-        default:''
-    }
+   
 
 });
 

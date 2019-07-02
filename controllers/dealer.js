@@ -275,7 +275,23 @@ controller.post('/updatePassword', async (req, res, next) => {
 
 })
 
+//place bid api for increasing the bid price if dealer is loosing the bid...
+controller.post('/placeBid', validate(validateBid), async (req, res) => {
+	let newbid = {
+		price: req.body.price,
+		bid_date: new Date(),
+		dealership_id:req.body.dealership_id,
+		legal_contact:req.body.legal_contact
+		}
+	
+	Bid.findOneAndUpdate({car_id:req.body.car_id,dealer_id: req.body.dealer_id}  ,{$push:{bids:newbid}}, { new: true }    ,async (err, bid) => {
+		if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Ooops, could not push bid!.');
 
+		//sending response
+		res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(bid, ['_id']));
+	})
+
+})
 
 
 
@@ -284,11 +300,12 @@ controller.post('/createBid', validate(validateBid), async (req, res) => {
 	let bid = new Bid({
 		car_id: req.body.car_id,
 		dealer_id: req.body.dealer_id,
+		bids:[{
 		price: req.body.price,
 		bid_date: new Date(),
 		dealership_id:req.body.dealership_id,
 		legal_contact:req.body.legal_contact
-
+		}]
 	})
 	console.log('the bid is ', bid)
 	bid.save(async (err, bid) => {
