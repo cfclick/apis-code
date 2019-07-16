@@ -54,7 +54,7 @@ controller.post('/newCar', [validate(validateCar)], async (req, res, next) => {
     //req.body.ref = nextRef; //modify req object by adding new ref
 
     //preparing new car object 
-    car = new Car(_.pick(req.body, ['vin_number', 'vehicle_year', 'seller_id', 'basic_info', 'vehicle_images', 'vehicle_has_second_key', '_id', 'is_vehicle_aftermarket', 'vehicle_aftermarket', 'vehicle_ownership', 'vehicle_comments', 'vehicle_condition', 'willing_to_drive', 'vehicle_to_be_picked_up', 'willing_to_drive_how_many_miles', 'vehicle_finance_details', 'created_at', 'updated_at']));
+    car = new Car(_.pick(req.body, ['vin_number', 'vehicle_year', 'vehicle_make', 'vehicle_model', 'vehicle_trim', 'vehicle_location', 'additional_options', 'standard_equipments', 'seller_id', 'basic_info', 'vehicle_images', 'vehicle_has_second_key', '_id', 'is_vehicle_aftermarket', 'vehicle_aftermarket', 'vehicle_ownership', 'vehicle_comments', 'vehicle_condition', 'willing_to_drive', 'vehicle_to_be_picked_up', 'willing_to_drive_how_many_miles', 'vehicle_finance_details', 'created_at', 'updated_at']));
 
     //save new car
     car.save(async (err, car) => {
@@ -91,7 +91,7 @@ controller.post('/editCar', [validate(validateCar)], async (req, res, next) => {
     if (!car) return res.status(def.API_STATUS.CLIENT_ERROR.BAD_REQUEST).send('No recrod found.');
 
     Car.findOneAndUpdate({ _id: req.body._id }, { $set: req.body }, { new: true }, function (err, doc) {
-
+		console.log('err', err);
         if (err) return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send('Ooops, could not save car information!');
 
         res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(doc, ['_id']));
@@ -291,8 +291,7 @@ controller.post('/listingCarBids', async (req, res) => {
 })
 
 
-
-/* ====================== Seller car list on datatbles =======================================*/
+/* ====================== Dealer car list on datatbles =======================================*/
 controller.post('/getdealerCarListing', async (req, res, next) => {
 
     let dealerId = mongoose.Types.ObjectId(req.body.dealer_id)
@@ -316,7 +315,7 @@ controller.post('/getdealerCarListing', async (req, res, next) => {
     else if (req.body.type == 'transactions') {
         let carIds = await Bid.distinct('car_id', { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id), bid_acceptance: 'accepted' });// select all those car ids those are hidden by dealer
         condition[ '_id'] ={ $in: carIds };//fetck only those cars doest have bids
-        condition['type'] = 'sold'
+        condition['type'] = 'accepted'
     }
     else if (req.body.type == 'all') {
         let wl_carIds = await DealerWishList.distinct("car_id", { dealer_id: mongoose.Types.ObjectId(req.body.dealer_id) });// select all those car ids those are in wish list
@@ -337,7 +336,7 @@ controller.post('/getdealerCarListing', async (req, res, next) => {
     let sortCondition = {}
     sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort
 
-    // console.log('condition', condition);
+     console.log('condition', condition);
     // calculating the car's count after search/filters
     let totalRecordsAfterFilter = await Car.find(condition).countDocuments()
     // calculating the car's count
@@ -431,12 +430,17 @@ controller.post('/getdealerCarListing', async (req, res, next) => {
             $group: {
                 _id: '$_id',
                 basic_info: { $first: '$basic_info' },
+                vehicle_make:{$first:'$vehicle_make'},
+                vehicle_model:{$first:'$vehicle_model'},
+                vehicle_trim:{$first:'$vehicle_trim'},
+                standard_equipments:{$first:'$standard_equipments'},
+                additional_options:{$first:'$additional_options'},
                 best_bid: { $first: '$best_bid' },
                 vehicle_has_second_key: { $first: '$vehicle_has_second_key' },
                 vehicle_year: { $first: '$vehicle_year' },
                 vehicle_images: { $first: '$vehicle_images' },
                 vin_number: { $first: '$vin_number' },
-                location: { $first: '$location' },
+                vehicle_location: { $first: '$vehicle_location' },
                 created_at: { $first: '$created_at' },
                 updated_at: { $first: '$updated_at' },
                 vehicle_finance_details: { $first: '$vehicle_finance_details' },
@@ -456,6 +460,7 @@ controller.post('/getdealerCarListing', async (req, res, next) => {
                 distance: { $first: '$distance' },
                 my_bid: { $first: '$my_bid' },
                 totalBids: { $first: '$totalBids' },
+                seller_id: { $first: '$seller_id' },
 
 
 
@@ -479,7 +484,6 @@ controller.post('/getdealerCarListing', async (req, res, next) => {
 
 
 
-
 /* ====================== Seller car list on datatbles =======================================*/
 controller.post('/listingCarsOnDatable', [validate(validateCarListing)], async (req, res, next) => {
 
@@ -498,9 +502,12 @@ controller.post('/listingCarsOnDatable', [validate(validateCarListing)], async (
         condition['$or'] = search(req);
 
     let sortCondition = {}
-    sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort
+    if(req.body.type == 'accepted' && req.body.sortProperty=='created_at')
+	sortCondition['updated_at'] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort
+    else
+    	sortCondition[req.body.sortProperty] = req.body.sortDirection == 'asc' ? 1 : -1 //1 for ascending -1 for descending order sort
 
-    console.log('condition', condition);
+    console.log('sort condition', sortCondition);
     // calculating the car's count after search/filters
     let totalRecordsAfterFilter = await Car.find(condition).countDocuments()
 
@@ -518,7 +525,7 @@ controller.post('/listingCarsOnDatable', [validate(validateCarListing)], async (
             $match: condition
 
         },
-        {
+         {
             $lookup: {
                 from: "car_bids",
                 localField: "_id",    // field in the car collection
@@ -527,9 +534,64 @@ controller.post('/listingCarsOnDatable', [validate(validateCarListing)], async (
             }
 
         },
+       
         {
-            $addFields: {
-                totalBids: { $size: "$carbids" }
+            "$addFields": {
+
+
+                "totalBids": { "$size": "$carbids" }
+            },
+        },
+        { $unwind:
+            {
+                path:"$carbids",
+                preserveNullAndEmptyArrays:true
+            }  }
+        ,
+        {
+            "$addFields": {
+                "higest_bid": {
+                    $max: "$carbids.bids.price"
+                }
+            }
+        },
+        {
+
+            $group: {
+                _id: '$_id',
+                basic_info: { $first: '$basic_info' },
+                vehicle_make:{$first:'$vehicle_make'},
+                vehicle_model:{$first:'$vehicle_model'},
+                vehicle_trim:{$first:'$vehicle_trim'},
+                standard_equipments:{$first:'$standard_equipments'},
+                additional_options:{$first:'$additional_options'},
+                best_bid: { $first: '$best_bid' },
+                vehicle_has_second_key: { $first: '$vehicle_has_second_key' },
+                vehicle_year: { $first: '$vehicle_year' },
+                vehicle_images: { $first: '$vehicle_images' },
+                vin_number: { $first: '$vin_number' },
+                vehicle_location: { $first: '$vehicle_location' },
+                created_at: { $first: '$created_at' },
+                updated_at: { $first: '$updated_at' },
+                vehicle_finance_details: { $first: '$vehicle_finance_details' },
+                vehicle_comments: { $first: '$vehicle_comments' },
+                type: { $first: '$type' },
+                vehicle_aftermarket: { $first: '$vehicle_aftermarket' },
+                review: { $first: '$review' },
+                vehicle_condition: { $first: '$vehicle_condition' },
+                willing_to_drive: { $first: '$willing_to_drive' },
+                willing_to_drive_how_many_miles: { $first: '$willing_to_drive_how_many_miles' },
+                vehicle_to_be_picked_up: { $first: '$vehicle_to_be_picked_up' },
+                is_vehicle_aftermarket: { $first: '$is_vehicle_aftermarket' },
+                vehicle_ownership: { $first: '$vehicle_ownership' },
+                vehicle_condition: { $first: '$vehicle_condition' },
+                dealers_bids: { $first: '$dealers_bids' },
+                higest_bid: { $max: '$higest_bid' },//get the max of all the bids
+                
+                my_bid: { $first: '$my_bid' },
+                totalBids: { $first: '$totalBids' },
+
+
 
             }
         },
@@ -708,30 +770,15 @@ controller.post('/getCarBids', async (req, res) => {
     ]);
 
 
-    // console.log('the bid is ',JSON.stringify(bids));
-    // let bidss = await Bid.find(condition).populate({
-    //     path: "dealer_id",
-    //     model: "Dealer",
-    //     select: "name",
-    // }).populate({
-    //     path: "car_id",
-    //     model: "Car",
-    //     select: "vehicle_year basic_info",
-    //     // populate: {
-    //     //     path: 'seller_id',
-    //     //     model: 'Seller',
-    //     //     select: 'name'
-    //     // }
-    // }).sort(sortCondition).skip(start).limit(body.size);;
 
     res.status(def.API_STATUS.SUCCESS.OK).send({ records: bids, count: totalRecords })
 })
-
 /* ====================== Dealer car list  =======================================*/
 controller.post('/contactRequest', [validate(validateContactRequest)], async (req, res, next) => {
     const name = req.body.name;
     const webEndPoint = config.get('webEndPoint') + '/seller/login';
     const message = '<p style="line-height: 24px; margin-bottom:15px;">Hello Admin,</p><p style="line-height: 24px;margin-bottom:15px;">We got a new contact request to know more information about car. Customer details is mentioned below: <p style="line-height: 24px; margin-bottom:15px;">Name:' + req.body.name + '</p> <p style="line-height: 24px; margin-bottom:15px;">Email:' + req.body.email + '</p><p style="line-height: 24px; margin-bottom:15px;">Phone:' + req.body.country_code + ' ' + req.body.phone + '</p><p style="line-height: 24px; margin-bottom:15px;">Message:' + req.body.message + '</p><p style="line-height: 24px; margin-bottom:15px;">Contact on:' + req.body.preference + '</p><p style="line-height: 24px; margin-bottom:20px;">	You can access your account at any point using <a target="_blank" href="' + webEndPoint + '" style="text-decoration: underline;">this</a> link.</p>'
+    console.log(message);
     sendMail({
         to: req.body.email,
         subject: 'New Contact Request',
@@ -1207,7 +1254,7 @@ controller.post('/acceptBid', async (req, res, next) => {
 
     await Bid.updateMany({ car_id: req.body.carId }, { $set: { bid_acceptance: 'rejected' } });
     await Bid.findOneAndUpdate({ _id: req.body.bidId }, { $set: { bid_acceptance: 'accepted' } });
-    await Car.findOneAndUpdate({ _id: req.body.carId }, { $set: { type: 'accepted' } });
+    await Car.findOneAndUpdate({ _id: req.body.carId }, { $set: { type: 'accepted' ,update_at:Date.now() } });
 
     res.status(def.API_STATUS.SUCCESS.OK).send(true);
 
@@ -1251,48 +1298,78 @@ function filters(req, condition) {
     //    condition['created_at'] = { $gte: (new Date(req.body.filters.dates['transformedStartDate'])), $lte: (new Date(req.body.filters.dates['transformedEndDate'])) }
 
     //if filters contains the 'years' filter
-    if (_.has(req.body.filters, ['year_range']))
-        condition['vehicle_year'] = { $gte: req.body.filters.year_range[0], $lte: req.body.filters.year_range[1] }
+    if (_.has(req.body.filters, ['year_range']) && (req.body.filters['year_range']) && req.body.filters['year_range'].length > 0)
+        condition['vehicle_year'] = { $gte: parseInt(req.body.filters.year_range[0]
+        ), $lte: parseInt(req.body.filters.year_range[1]) }
+
+    //if filters contains the 'condition' filter
+    if (_.has(req.body.filters, ['condition']) && req.body.filters['condition'] && req.body.filters['condition'].length > 0)
+        condition['vehicle_condition.vehicle_condition_value'] ={ $in: req.body.filters['condition'] }
 
     //if filters contains the 'year' filter
-    if (_.has(req.body.filters, ['year']) && req.body.filters['year'].length > 0)
+    if (_.has(req.body.filters, ['year']) && req.body.filters['year'] && req.body.filters['year'].length > 0)
         condition['vehicle_year'] = { $in: req.body.filters['year'] }
 
+    //if filters contains the 'state' filter
+    if (_.has(req.body.filters, ['state']) && req.body.filters['state'] && req.body.filters['state'].length > 0)
+        condition['basic_info.vehicle_location.state'] = { $in: [req.body.filters['state']] }
+
+    //if filters contains the 'radius' filter
+    if (_.has(req.body.filters, ['radius']) && req.body.filters['radius'] && req.body.filters['radius'].length > 0)
+        condition['willing_to_drive_how_many_miles'] = { $in: [req.body.filters['radius']] }
+
+    //if filters contains the 'vin_license_plate' filter
+    if (_.has(req.body.filters, ['vin_license_plate']) && req.body.filters['vin_license_plate'] && req.body.filters['vin_license_plate'].length > 0)
+        condition['vin_number'] = { $in: [req.body.filters['vin_license_plate']] }
+
     //if filters contains the 'make' filter
-    if (_.has(req.body.filters, ['make']) && req.body.filters['make'].length > 0)
-        condition['basic_info.vehicle_make'] = { $in: req.body.filters['make'] }
+    if (!_.has(req.body.filters, ['selectedmake']) && _.has(req.body.filters, ['make']) && req.body.filters['make'] && req.body.filters['make'].length > 0)
+        condition['vehicle_make'] = { $in: req.body.filters['make'] }
 
 
     //if filters contains the 'model' filter
-    if (_.has(req.body.filters, ['model']) && req.body.filters['model'].length > 0)
-        condition['basic_info.vehicle_model'] = { $in: req.body.filters['model'] }
+    if (!_.has(req.body.filters, ['selectedmodel']) && _.has(req.body.filters, ['model']) && req.body.filters['model'] && req.body.filters['model'].length > 0)
+        condition['vehicle_model'] = { $in: req.body.filters['model'] }
+
+
+    //if filters contains the 'selectedmake' filter
+    if (_.has(req.body.filters, ['selectedmake']) && req.body.filters['selectedmake'] && req.body.filters['selectedmake'].length > 0)
+        condition['vehicle_make'] = { $in: req.body.filters['selectedmake'] }
+
+
+    //if filters contains the 'selectedmodel' filter
+    if (_.has(req.body.filters, ['selectedmodel']) && req.body.filters['selectedmodel'] && req.body.filters['selectedmodel'].length > 0)
+        condition['vehicle_model'] = { $in: req.body.filters['selectedmodel'] }
 
 
     //if filters contains the 'trim' filter
-    if (_.has(req.body.filters, ['trim']) && req.body.filters['trim'].length > 0)
-        condition['basic_info.vehicle_trim'] = { $in: req.body.filters['trim'] }
+    if (_.has(req.body.filters, ['trim']) && req.body.filters['trim'] && req.body.filters['trim'].length > 0)
+        condition['vehicle_trim'] = { $in: req.body.filters['trim'] }
 
     //if filters contains the 'body_style' filter
-    if (_.has(req.body.filters, ['body_style']) && req.body.filters['body_style'].length > 0 && !_.includes(req.body.filters['body_style'], 'All body'))
+    if (_.has(req.body.filters, ['body_style']) && req.body.filters['body_style'] && req.body.filters['body_style'].length > 0 && !_.includes(req.body.filters['body_style'], 'All body'))
         condition['basic_info.vehicle_body_type'] = { $in: req.body.filters['body_style'] }
 
 
     //if filters contains the 'transmission' filter
-    if (_.has(req.body.filters, ['transmission']) && req.body.filters['transmission'].length > 0)
+    if (_.has(req.body.filters, ['transmission']) && req.body.filters['transmission'] && req.body.filters['transmission'].length > 0)
         condition['basic_info.vehicle_transmission'] = { $in: req.body.filters['transmission'] }
 
     //if filters contains the 'exterior_color' filter
-    if (_.has(req.body.filters, ['exterior_color']) && req.body.filters['exterior_color'].length > 0)
+    if (_.has(req.body.filters, ['exterior_color']) && req.body.filters['exterior_color'] && req.body.filters['exterior_color'].length > 0)
         condition['basic_info.vehicle_exterior_color'] = { $in: req.body.filters['exterior_color'] }
 
     //if filters contains the 'interior_color' filter
-    if (_.has(req.body.filters, ['interior_color']) && req.body.filters['interior_color'].length > 0)
+    if (_.has(req.body.filters, ['interior_color']) && req.body.filters['interior_color'] && req.body.filters['interior_color'].length > 0)
         condition['basic_info.vehicle_interior_color'] = { $in: req.body.filters['interior_color'] }
 
     //if filters contains the 'interior_color' filter
-    if (_.has(req.body.filters, ['miles']) && req.body.filters['miles'].length > 0)
+    if (_.has(req.body.filters, ['miles']) && req.body.filters['miles'] && req.body.filters['miles'].length > 0)
         condition['willing_to_drive_how_many_miles'] = { $in: req.body.filters['miles'] }
 
+    if (_.has(req.body.filters, ['mileage_range']) && req.body.filters['mileage_range'] && req.body.filters['mileage_range'].length > 0)
+        condition['basic_info.vehicle_mileage'] = { $gte: parseInt(req.body.filters.mileage_range[0]
+            ), $lte: parseInt(req.body.filters.mileage_range[1]) }
 
     return condition
 }
@@ -1303,11 +1380,10 @@ function search(req) {
     //text search on listed columns
     return [
         { vin_number: { $regex: req.body.search, $options: 'i' } },
-        { 'basic_info.vehicle_make': { $regex: req.body.search, $options: 'i' } },
-        { 'basic_info.vehicle_model': { $regex: req.body.search, $options: 'i' } },
-        { 'basic_info.vehicle_trim': { $regex: req.body.search, $options: 'i' } },
-        { 'basic_info.vehicle_body_type': { $regex: req.body.search, $options: 'i' } },
-        { 'basic_info.type': { $regex: req.body.search, $options: 'i' } },
+        { 'vehicle_make': { $regex: req.body.search, $options: 'i' } },
+        { 'vehicle_model': { $regex: req.body.search, $options: 'i' } },
+        { 'vehicle_trim': { $regex: req.body.search, $options: 'i' } },       
+        { 'type': { $regex: req.body.search, $options: 'i' } },
         /*{offer_in_hand: req.body.search}, //ToDo
         {year: req.body.search } //ToDo
         */
@@ -1315,1211 +1391,3 @@ function search(req) {
 }
 
 module.exports = controller;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

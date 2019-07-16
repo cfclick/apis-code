@@ -7,8 +7,8 @@
 
     "fromEmail":"prashant.ojha@trigma.com",
     "aws":{
-        "accessKey":"",
-        "secretKey":"",
+        "accessKey":"AKIAUGU7PKGK54X26G7Q",
+        "secretKey":"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",
         "bucket": "topautobid-dev",
         "region": "us-west-2"
     },
@@ -21,14 +21,21 @@
             "localUrl": "mongodb://localhost/",
             "mlabUrl": "mongodb://"
         },
-        "name": "topauto",
+        "name": "topautobid",
         "user": "",
         "pass": ""
+    },
+    "mysqldb": {
+		"host": "localhost",
+		"user": "root",
+		"password": "@Mysql123#",
+		"database": "car2db_eng"
     },
     "email-templates":{
         "seller-welcome-template":"d-e04d83d17b5e4fcdbac01ee722740819",
         "dealer-welcome-template":"d-6efdb4eff12540ebab60798b08b6be6b",
         "forgot-password-template":"d-59ae46e66c4e46dd9f136ab08ff5289c",
-        "reset-password-template":"d-9a970b95fc7142c5b91f68b15256c300"
+        "reset-password-template":"d-9a970b95fc7142c5b91f68b15256c300",
+        "place-bid-template":"d-5d5bd4d250ba486ca6e2fa4ec48eebb5"
     }
 }

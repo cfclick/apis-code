@@ -62,7 +62,7 @@ controller.post('/seller/login', validate(validateLogin), async (req, res) => {
     res.setHeader('x-auth-token', token);
     res.header('Access-Control-Expose-Headers', 'x-auth-token')
     let data = {};
-    data  =_.pick(seller, ['_id', 'name', 'location','emails', 'is_verified', 'phones', 'profile_pic','is_multifactor_authorized']);
+    data  =_.pick(seller, ['_id', 'name', 'location','emails', 'username', 'is_verified', 'phones', 'profile_pic','is_multifactor_authorized']);
     data['carCount'] = carCount
     return res.status(def.API_STATUS.SUCCESS.OK).send(data);
 
@@ -274,7 +274,7 @@ controller.post('/dealer/login', validate(validateLogin), async (req, res) => {
 
     res.setHeader('x-auth-token', token);
     res.header('Access-Control-Expose-Headers', 'x-auth-token')
-    return res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(dealer, ['_id', 'name', 'emails','is_verified', 'phones', 'profile_pic','is_multifactor_authorized']));
+    return res.status(def.API_STATUS.SUCCESS.OK).send(_.pick(dealer, ['_id', 'name', 'emails','username','is_verified', 'phones', 'profile_pic','is_multifactor_authorized']));
 });
 
 
@@ -315,7 +315,7 @@ controller.post('/dealer/signup', validate(validateDealer), async (req, res) => 
             //send mail	
             dealer['cipher'] = req.body.password;
             const token = generateAuthToken(dealer);
-            const name = dealer.name.prefix + ' ' + dealer.name.first_name
+            const name =  `${dealer.name.first_name} ${dealer.name.last_name},`
             const webEndPoint = config.get('webEndPointStaging') + '/dealer/verify-email/' + token;         
             const msg ={
                 to: req.body.emails[0].email,

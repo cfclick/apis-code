@@ -1,3 +1,4 @@
+
 const config = require('config');
 const def = require('../models/def/statuses');
 const validate = require('../interceptors/validate');
@@ -24,8 +25,8 @@ const {
 const {
 	sendMail
 } = require('../helpers/emailService');
-
-
+const { Car } = require('../models/car');
+const {Chat} = require('../models/chat');
 const express = require('express');
 const controller = express.Router();
 
@@ -88,6 +89,24 @@ controller.post('/PasswordCorrect', async (req, res, next) => {
 })
 
 
+
+/**
+ * get dealer chat using carid for chat
+ */
+controller.post('/getChatDetails',async function(req,res){
+
+  let seller  =  await Car.findOne({_id:req.body.carId},{_id:1,seller_id:1}).populate({
+	path: "seller_id",
+	model: "Seller",
+	select: "_id name profile_pic username"
+  });
+  
+   console.log('hii--------------------------------',seller)
+  let chat = await Chat.find({seller_id:seller.seller_id._id,dealer_id:req.body.dealer_id}).sort({created_at:-1}).limit(10);;
+
+  return res.status(def.API_STATUS.SUCCESS.OK).send({chat:chat,seller:seller});
+
+})
 
 
 /* ====================== Dealer forgot password  verify token =======================================*/
@@ -275,6 +294,10 @@ controller.post('/updatePassword', async (req, res, next) => {
 
 })
 
+
+
+
+
 //place bid api for increasing the bid price if dealer is loosing the bid...
 controller.post('/placeBid', validate(validateBid), async (req, res) => {
 	let newbid = {
@@ -400,5 +423,13 @@ controller.post('/changePassword', async(req,res,next)=>{
 	});
 	
 })
+
+
+
+
+
+
+
+
 
 module.exports = controller;

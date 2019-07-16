@@ -5,8 +5,9 @@ const validate = require('../interceptors/validate');
 const upload = require('../helpers/upload');
 var hummus = require('hummus');
 var isBase64 = require('is-base64');
+var mysqlQuery = require('../init/mysqldb');
 
-
+const {Chat} = require('../models/chat');
 
 const {
     State   
@@ -54,6 +55,27 @@ controller.post('/fetchVehicleStatisticsByYear',[validate(validateVehicleYear)],
 		
     return res.status(def.API_STATUS.SUCCESS.OK).send(records);	
 	
+})
+
+
+/**
+ * save chat message
+ */
+controller.post('/saveMessage',async function(req,res){
+   let message = new Chat({
+	   seller_id:req.body.seller_id,
+	   dealer_id:req.body.dealer_id,
+	   message_body:req.body.messageBody,
+	   created_at:Date.now(),
+	   is_seller:req.body.isSeller
+
+   });
+
+	  let msg =  await message.save();
+	  if(msg)
+	  return res.status(def.API_STATUS.SUCCESS.OK).send(msg);
+	  else
+	  return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(false);
 })
 
 
@@ -189,6 +211,116 @@ controller.post('/deleteObject', function(req, res) {
 		}           
 	});  
 });
+
+
+/**
+ * Function to fetch all makes
+*/
+controller.get('/listingMakes', function(req, res) {    
+	
+	mysqlQuery('SELECT id_car_make, name from car_make', { }, function(err, rows)   {
+		if (err) {				
+			return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err.messege);
+		}else{ 			
+			
+			return res.status(def.API_STATUS.SUCCESS.OK).send(rows); 
+		}	
+	});  
+	
+});
+
+
+
+/**
+ * Function to fetch all bodystyles
+*/
+controller.post('/listingBodystyles', function(req, res) {    
+	
+	mysqlQuery('SELECT id_car_serie, name from car_serie where', {id_car_model: req.body.model_id}, function(err, rows)   {
+		if (err) {				
+			return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err.messege);
+		}else{ 			
+			return res.status(def.API_STATUS.SUCCESS.OK).send(rows); 
+		}	
+	});  
+	
+});
+
+
+/**
+ * Function to fetch Models By Make ID
+*/
+controller.post('/ListingModels', function(req, res) {    
+	
+	mysqlQuery('SELECT id_car_model,name from car_model where ?', {id_car_make: req.body.make_id}, function(err, rows)   {
+		if (err) {				
+			return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err.messege);
+		}else{ 			
+			return res.status(def.API_STATUS.SUCCESS.OK).send(rows); 
+		}
+	});  
+	
+});
+
+/**
+ * Function to fetch Trims By Model ID
+*/
+controller.post('/ListingTrimsWithBodystyles', function(req, res) {    
+	
+	mysqlQuery('SELECT * from car_trim where ?', {id_car_model: req.body.model_id}, function(err, trims)   {
+		if (err) {				
+			return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err.messege);
+		}else{ 			
+				mysqlQuery('SELECT 	id_car_serie, name from car_serie where ?', {id_car_model: req.body.model_id}, function(err, bodystyles)   {
+					if (err) {				
+						return res.status(def.API_STATUS.SUCCESS.OK).send({'trims':trims,'bodystyles':[]}); 
+					}else{ 			
+						return res.status(def.API_STATUS.SUCCESS.OK).send({'trims':trims,'bodystyles':bodystyles}); 
+					}		
+			}) 
+		}
+	})
+});
+
+/**
+ * Function to fetch Trims By Model ID
+*/
+controller.post('/ListingTrimsByMakeName', function(req, res) {    
+	
+	mysqlQuery('SELECT ctr.id_car_trim, ctr.name, cmk.id_car_make FROM `car_trim` as ctr INNER JOIN `car_model` as cmd ON ctr.id_car_model = cmd.id_car_model INNER JOIN `car_make` as cmk ON cmd.id_car_make = cmk.id_car_make WHERE cmk.name = ? AND cmd.name = ?', [req.body.make_name, req.body.model_name], function(err, rows)   {
+		if (err) {				
+			return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err.messege);
+		}else{ 			
+			return res.status(def.API_STATUS.SUCCESS.OK).send(rows); 
+		}
+	});  
+	
+});
+
+
+/**
+ * Function to vehicle options By Trim ID
+*/
+    
+controller.post('/ListingVehicleDetailsByTrimId', function(req, res) { 	
+	
+	mysqlQuery('SELECT ctr.id_car_serie, ctr.id_car_model, ctr.name as trim_name, ceq.id_car_equipment, cov.id_car_option, cop.name as car_option_name FROM `car_equipment` as ceq INNER JOIN `car_trim` as ctr ON ceq.id_car_trim = ctr.id_car_trim INNER JOIN `car_option_value` as cov ON  cov.id_car_equipment = ceq.id_car_equipment INNER JOIN `car_option` as cop ON cop.id_car_option = cov.id_car_option  WHERE ceq.id_car_trim = ?', [req.body.trim_id], function(err, options)   {
+		if (err) {				
+			return res.status(def.API_STATUS.SERVER_ERROR.INTERNAL_SERVER_ERROR).send(err.messege);
+		}else{ 			
+			mysqlQuery('SELECT ctr.name as trim_name, csp.id_car_specification, csp.name as specification_name, csv.value as specification_value FROM `car_specification_value` as csv INNER JOIN `car_trim` as ctr ON csv.id_car_trim = ctr.id_car_trim INNER JOIN `car_specification` as csp ON csp.id_car_specification = csv.id_car_specification  WHERE csv.id_car_trim = ?', [req.body.trim_id], function(err, specifications)   {
+					if (err) {				
+						return res.status(def.API_STATUS.SUCCESS.OK).send({'vehicle_options':options,'vehicle_specifications':[]}); 
+					}else{ 			
+						return res.status(def.API_STATUS.SUCCESS.OK).send({'vehicle_options':options,'vehicle_specifications':specifications}); 
+					}		
+			}) 
+		}
+	})
+	
+});
+
+
 
 
 module.exports = controller;

@@ -1,14 +1,24 @@
 const express = require('express');
 
-//const users = require('../controllers/users');
+/**********************************************************************
+ * Front Apis files
+ * *********************************************************************** */
 const auth = require('../controllers/auth');
 const dealer = require('../controllers/dealer');
 const seller = require('../controllers/seller');
+const payment = require('../controllers/payment');
 const car = require('../controllers/car');
 const dealership = require('../controllers/dealership');
 const common = require('../controllers/common');
 const error = require('../interceptors/error');
 const authMiddleware = require('../interceptors/auth');//calling authentication middleware
+
+/**********************************************************************
+ * Admin Apis files
+ * *********************************************************************** */
+const adminAuth = require('../controllers/admin/auth');
+const adminCar = require('../controllers/admin/car');
+const adminSeller = require('../controllers/admin/seller');
 
 module.exports = function (app) {
     app.use(express.json());
@@ -28,9 +38,16 @@ module.exports = function (app) {
     app.use('/api/seller', seller);
     app.use('/api/dealer', dealer);
     app.use('/api/car', car);
+    app.use('/api/payment', payment);
     app.use('/api/dealership', /*[authMiddleware],*/ dealership);
     app.use('/api/common', common);
 
+   /****************************************************************
+        Admin Apis
+    * ***********************************************************************/
+   app.use('/api/admin/auth', adminAuth);
+   app.use('/api/admin/cars', adminCar);
+   app.use('/api/admin/seller', adminSeller);
     //Error Handler
-    app.use(error);
+    //app.use(error);
 }

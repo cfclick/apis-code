@@ -388,10 +388,6 @@ const carSchema = new mongoose.Schema({
         type: Date,
         trim: true,
         default: new Date(), 
-	},
-	active:{
-		type: Boolean,              
-		default: true
 	}
     
 }); 
